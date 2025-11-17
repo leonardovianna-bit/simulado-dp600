@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulado DP-600: Microsoft Fabric</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f2f5; margin: 0; padding: 20px; color: #333; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: #0078d4; font-size: 1.5em; }
+        .progress { text-align: center; margin-bottom: 20px; color: #666; font-size: 0.9em; }
+        .question-card { display: none; }
+        .question-card.active { display: block; animation: fadeIn 0.5s; }
+        .question-text { font-size: 1.1em; margin-bottom: 20px; font-weight: 500; line-height: 1.5; }
+        .context { background: #eef6fc; padding: 10px; border-left: 4px solid #0078d4; margin-bottom: 15px; font-size: 0.9em; color: #444; }
+        .options { list-style: none; padding: 0; }
+        .option { background: #fafafa; border: 1px solid #ddd; padding: 15px; margin-bottom: 10px; border-radius: 8px; cursor: pointer; transition: all 0.2s; }
+        .option:hover { background: #f0f0f0; }
+        .option.selected { border-color: #0078d4; background-color: #eeffff; }
+        .option.correct { background-color: #d4edda; border-color: #28a745; color: #155724; }
+        .option.wrong { background-color: #f8d7da; border-color: #dc3545; color: #721c24; }
+        .btn-container { display: flex; justify-content: space-between; margin-top: 20px; }
+        button { padding: 10px 20px; border: none; border-radius: 5px; font-size: 1em; cursor: pointer; }
+        .btn-check { background-color: #0078d4; color: white; width: 100%; }
+        .btn-next { background-color: #28a745; color: white; display: none; margin-left: 10px; }
+        .result-box { margin-top: 15px; padding: 15px; border-radius: 5px; display: none; font-weight: bold; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Simulado DP-600</h1>
+    <div class="progress" id="progress">Questão 1 de 63</div>
+    <div id="quiz-container">
+        </div>
+</div>
+
+<script>
+const quizData = [
+    { q: "Você tem um tenant do Fabric com um modelo de ML. Você precisa usar a função PREDICT em um notebook. Quais duas linguagens você pode usar?", options: ["A. T-SQL", "B. DAX", "C. Spark SQL", "D. PySpark"], answer: [2, 3] },
+    { q: "Você usa um dataflow para carregar dados para um warehouse. Precisa adicionar uma etapa do Power Query para identificar valores máximos das colunas numéricas. Qual função usar?", options: ["A. Table.MaxN", "B. Table.Max", "C. Table.Range", "D. Table.Profile"], answer: [3] },
+    { q: "Você planeja se conectar ao Lakehouse1 (que tem tabelas Delta, externas e gerenciadas) usando seu SQL endpoint. O que você será capaz de fazer?", options: ["A. Ler a Tabela3", "B. Atualizar os dados na Tabela3", "C. Ler a Tabela2", "D. Atualizar os dados na Tabela1"], answer: [0] },
+    { q: "Você está analisando dados em um notebook Spark. Precisa usar a visualização de Gráfico (Chart view). Qual função executar?", options: ["A. displayHTML", "B. show", "C. write", "D. display"], answer: [3] },
+    { q: "Um visual Python no Power BI está agrupando linhas duplicadas automaticamente. Você precisa que TODAS as linhas apareçam.", options: ["A. Referenciar por índice", "B. Classificar Coluna por", "C. Adicionar um campo único a cada linha", "D. Modificar Resumir Por"], answer: [2] },
+    { q: "Você precisa garantir acesso de leitura e escrita a um dataset (DS1) usando o endpoint XMLA. O que deve ser modificado primeiro?", options: ["A. Configurações do DS1", "B. Configurações do WS1", "C. Configurações da Capacidade (C1)", "D. Configurações do Tenant1"], answer: [2] },
+    { q: "Recomendar solução para usuários criarem modelos Direct Lake usando ferramentas externas (Princípio do menor privilégio). Quais 3 ações?", options: ["A. XMLA habilitado no Tenant", "B. Usuários convidados habilitados", "C. Usuários podem editar modelo", "D. Endpoint XMLA como Leitura/Escrita na Capacidade", "E. Usuários podem criar itens Fabric", "F. Publicar na Web"], answer: [1, 3, 4] },
+    { q: "Você vai usar TMDL no VS Code para alterações em massa. Qual formato de arquivo usar para salvar o modelo semântico?", options: ["A. PBIP", "B. PBIX", "C. PBIT", "D. PBIDS"], answer: [0] },
+    { q: "Configurar pipeline de implantação. Desenvolvedores devem implantar em Dev/Test, mas NÃO em Produção. Quais 3 níveis de acesso?", options: ["A. Build em Prod", "B. Admin no pipeline", "C. Visualizador em Dev/Test", "D. Visualizador em Prod", "E. Contribuidor em Dev/Test", "F. Contribuidor em Prod"], answer: [2, 3, 4] }, // Correção baseada na lógica: Viewer em Prod impede deploy, Contributor em Dev/Test permite deploy.
+    { q: "Modelo DirectQuery com 500 milhões de linhas. Precisa reduzir tempo de execução para visuais em todas as páginas. Quais dois recursos?", options: ["A. Agregações definidas pelo usuário", "B. Agregação automática", "C. Cache de consulta", "D. OneLake integration"], answer: [0, 1] },
+    { q: "Atualização incremental falha por falta de recursos em arquivos CSV no OneLake. Qual a causa provável?", options: ["A. Query folding ocorrendo", "B. Apenas dias completos selecionado", "C. XMLA Read Only", "D. Query folding NÃO está ocorrendo", "E. Tipo de dado da coluna de partição alterado"], answer: [4] },
+    { q: "Habilitar scale-out (expansão) para um modelo semântico na capacidade Premium. O que fazer primeiro?", options: ["A. Formato grande Desligado", "B. Métricas Habilitado", "C. Formato de armazenamento de conjunto de dados grande Ligado", "D. Data Activator Habilitado"], answer: [2] },
+    { q: "Modelo Direct Lake usando tabelas Delta e RLS de um warehouse. Qual modo será usado pelas consultas DAX?", options: ["A. DirectQuery", "B. Dual", "C. Direct Lake", "D. Import"], answer: [0] },
+    { q: "Criar diagrama do modelo mostrando APENAS a tabela Sales e relacionadas. O que usar no Power BI Desktop?", options: ["A. Categorias de dados", "B. Modo de exibição de dados", "C. Modo de exibição de modelo", "D. Modo de exibição de consulta DAX"], answer: [2] },
+    { q: "Modelo Direct Lake. Identificar colunas usadas com frequência carregadas na memória (cache). Quais duas maneiras?", options: ["A. Analisar no Excel", "B. Vertipaq Analyzer", "C. DMV $System.DISCOVER_STORAGE_TABLE_COLUMN_SEGMENTS", "D. DMV DISCOVER_MEMORYGRANT"], answer: [1, 2] },
+    { q: "Reduzir memória e tempo de atualização de tabela 'Orders' (100mi linhas). Colunas: DataHora, Qtd, Preço, Total(Calc), TotalQtd(Medida). Quais duas ações?", options: ["A. Dividir OrderDateTime em data e hora", "B. Substituir TotalQuantity por coluna calculada", "C. Converter Quantity para Texto", "D. Substituir TotalSalesAmount por uma medida"], answer: [0, 3] },
+    { q: "Impedir criadores de relatórios de usar medidas implícitas. Quais duas ferramentas usar?", options: ["A. Power BI Desktop", "B. Tabular Editor", "C. SSMS", "D. DAX Studio"], answer: [0, 1] },
+    { q: "Pipeline de dados para copiar dados externos (esquema muda regularmente) para Table1. Requisitos: Substituir esquema e dados. O que configurar na atividade Copy?", options: ["A. Source: colunas adicionais", "B. Destination: Table action 'Overwrite'", "C. Settings: Enable staging", "D. Source: Enable partition discovery"], answer: [1] },
+    { q: "Consultar arquivos de vendas (Amazon S3) via SQL endpoint. Quais duas recomendações (Formato e Atalho)?", options: ["A. Atalho em 'Arquivos'", "B. Formato Parquet", "C. Formato CSV", "D. Atalho em 'Tabelas'", "E. Formato Delta"], answer: [3, 4] },
+    { q: "Converter CSV para Delta com V-Order no Lakehouse. O que fazer no explorador?", options: ["A. Carregar em Tabelas", "B. Novo atalho em 'Arquivos'", "C. Novo atalho em 'Tabelas'", "D. Otimizar"], answer: [0] }, /* Ajustado para lógica de Load to Tables */
+    { q: "Copiar dados para tabela não particionada e particionar por data. O que fazer primeiro na atividade Copy (Destino)?", options: ["A. Mode: Append", "B. Selecionar coluna de partição", "C. Source: Partition discovery", "D. Mode: Overwrite"], answer: [3] },
+    { q: "Solução para popular data store usando dataflows (append) e tabelas Delta com V-Order. Quais dois stores?", options: ["A. Lakehouse", "B. SQL Database", "C. Warehouse", "D. KQL Database"], answer: [0, 2] },
+    { q: "Pipeline deve rodar a cada 4 horas nas segundas e sextas. Qual opção de 'Repetir'?", options: ["A. Diariamente", "B. Por minuto", "C. Semanalmente", "D. Por hora"], answer: [2] },
+    { q: "Desempenho do warehouse degrada. Suspeita de Throttling. O que usar para identificar?", options: ["A. Config Capacity", "B. Monitoring hub", "C. DMVs", "D. App Métricas de Capacidade Fabric"], answer: [3] },
+    { q: "Relatório demorando 45 min (travado). Identificar o que impede a conclusão. Qual DMV?", options: ["A. sys.dm_exec_requests", "B. sys.dm_exec_sessions", "C. sys.dm_exec_connections", "D. sys.dm_pdw_exec_requests"], answer: [0] },
+    { q: "Padrão de carregamento SCD Tipo 1. Quais duas ações?", options: ["A. Atualizar linhas se atributos mudaram", "B. Inserir se chave existe e atributos mudaram", "C. Atualizar data fim", "D. Inserir novos registros se chave nova"], answer: [0, 3] },
+    { q: "PySpark Join: Tabela 'transactions' (10mi linhas) e 'customers' (1000 linhas). Minimizar shuffling.", options: ["A. transactions.join(F.broadcast(customers)...)", "B. join(...).distinct()", "C. Standard join", "D. crossJoin"], answer: [0] },
+    { q: "PySpark: Calcular min, max, mean, stddev para colunas string e numéricas. 'df.explain()' atende?", options: ["A. Sim", "B. Não"], answer: [1] },
+    { q: "PySpark: Calcular min, max, mean, stddev. 'df.show()' atende?", options: ["A. Sim", "B. Não"], answer: [1] },
+    { q: "PySpark: Calcular min, max, mean, stddev. 'df.summary()' atende?", options: ["A. Sim", "B. Não"], answer: [0] },
+    { q: "Spark SQL: Verificar se manutenção foi feita na tabela Delta. 'DESCRIBE HISTORY customer' atende?", options: ["A. Sim", "B. Não"], answer: [0] },
+    { q: "Spark SQL: Verificar manutenção. 'REFRESH TABLE customer' atende?", options: ["A. Sim", "B. Não"], answer: [1] },
+    { q: "Spark SQL: Verificar manutenção. 'EXPLAIN TABLE customer' atende?", options: ["A. Sim", "B. Não"], answer: [1] },
+    { q: "Controle de versão (Git) PB Desktop. Salvar como arquivos de texto em hierarquia de pastas. Qual formato?", options: ["A. PBIP", "B. PBIDS", "C. PBIT", "D. PBIX"], answer: [0] },
+    { q: "Pipeline para copiar CSV para Lakehouse suportando expressões Power Query (M). Qual atividade?", options: ["A. Dataflow", "B. Notebook", "C. Script", "D. Copy data"], answer: [0] },
+    { q: "Visual Query: Mesclar duas tabelas e retornar TODAS as linhas de ambas.", options: ["A. Inner", "B. Full outer", "C. Left outer", "D. Right anti"], answer: [1] },
+    { q: "Remover arquivos Delta não referenciados há 30 dias (manter ACID).", options: ["A. Excluir no OneLake", "B. OPTIMIZE Z-order", "C. OPTIMIZE V-order", "D. VACUUM"], answer: [3] },
+    { q: "Dataflow: Inner join ignorando espaços nos valores.", options: ["A. Append (fuzzy)", "B. Merge (fuzzy)", "C. Append (lookup)", "D. Merge (lookup)"], answer: [1] },
+    { q: "Warehouse: Copiar schema1.city para schema2.city minimizando cópia de dados (Clone).", options: ["A. INSERT INTO...", "B. SELECT * INTO...", "C. CREATE TABLE ... AS CLONE OF", "D. CREATE TABLE ... AS SELECT"], answer: [2] },
+    { q: "Lakehouse: Impedir que novas tabelas sejam adicionadas automaticamente ao modelo semântico padrão.", options: ["A. Configurações do SQL analytics endpoint", "B. Config do modelo", "C. Config do workspace", "D. Config do Lakehouse"], answer: [0] },
+    { q: "Pipeline: Executar stored procedure no warehouse e passar retorno para atividades downstream.", options: ["A. Switch", "B. Copy data", "C. Append variable", "D. Lookup"], answer: [3] },
+    { q: "Consultar tabelas de dois Lakehouses diferentes (Workspaces diferentes) na mesma query SQL (sem cópia).", options: ["A. Atalho (Shortcut)", "B. Dataflow", "C. View", "D. Managed table"], answer: [0] },
+    { q: "Warehouse Star Schema SCD Tipo 2. Quais 3 colunas adicionar?", options: ["A. Foreign Key", "B. Natural Key", "C. Data/Hora Fim Vigência", "D. Surrogate Key (Substituta)", "E. Data/Hora Início Vigência"], answer: [2, 3, 4] },
+    { q: "Pipeline: Atividade 2 deve rodar mesmo se Atividade 1 falhar. Qual caminho condicional?", options: ["A. Upon Failure", "B. Upon Completion", "C. Upon Skip", "D. Upon Success"], answer: [1] },
+    { q: "Identificar colunas Surrogate Key com 'Summarize By' incorreto. Minimizar esforço.", options: ["A. DAX Formatter", "B. Model explorer", "C. Model view", "D. Best Practice Analyzer (Tabular Editor)"], answer: [3] },
+    { q: "Alterar programaticamente colunas terminadas em 'Key' (Ocultar, No Null, No Summarize, Key Column).", options: ["A. PB Desktop", "B. ALM Toolkit", "C. Tabular Editor", "D. DAX Studio"], answer: [2] },
+    { q: "Performance Analyzer: Visual lento. 'Other' = 1047ms, DAX = 27ms. Melhor redução?", options: ["A. Atualização auto página", "B. Otimizar DAX", "C. Alterar tipo visual", "D. Reduzir número de visuais no relatório"], answer: [3] },
+    { q: "Garantir que usuários sempre usem Direct Lake (Tabular Editor XMLA).", options: ["A. Default Mode", "B. Partitions Mode", "C. Storage Location", "D. Direct Lake Behavior"], answer: [3] },
+    { q: "Substituir FILTER por KEEPFILTERS melhora performance quando...", options: ["A. CALCULATE aninhado", "B. Referencia medida", "C. Múltiplas tabelas", "D. FILTER referencia coluna de tabela única (Import mode)"], answer: [3] },
+    { q: "RLS Dinâmica: Gerente RH diz que dados estão incompletos. Como validar o que ele vê?", options: ["A. Test as role (dados)", "B. Filtrar relatório", "C. Test as role (ver relatório como usuário específico)", "D. Pedir para abrir no Desktop"], answer: [2] },
+    { q: "1 bilhão de JSONs no OneLake. Time Series, processamento paralelo, minimizar tempo carga. Transformar e visualizar?", options: ["A. PySpark em notebook", "B. Pandas em notebook", "C. Power BI"], answer: [0] },
+    { q: "Análise de churn: Gráficos comparando retidos vs perdidos por geografia/idade/tempo. Que tipo de análise?", options: ["A. Diagnóstica", "B. Descritiva", "C. Prescritiva", "D. Preditiva"], answer: [1] },
+    { q: "Dataflow: Identificar min/max nos resultados. Quais 3 opções de 'Exibir'?", options: ["A. Distribuição valores", "B. Perfil de coluna", "C. Perfil no painel detalhes", "D. Qualidade coluna", "E. Painel de detalhes"], answer: [1, 2, 4] },
+    { q: "Power Query: Exibir estatísticas (Count, Avg, Null, Distinct, StdDev).", options: ["A. Table.schema", "B. Table.view", "C. Table.FuzzyGroup", "D. Table.Profile"], answer: [3] },
+    { q: "Verificar manutenção tabela Delta. 'DESCRIBE DETAIL customer' serve?", options: ["A. Sim", "B. Não"], answer: [1] },
+    { q: "PySpark stats (min/max/stddev). 'df.explain().show()' serve?", options: ["A. Sim", "B. Não"], answer: [1] },
+    { q: "Otimizar DAX lento (ISEMPTY). 'ISEMPTY ( RELATEDTABLE ('Order Item') )' serve?", options: ["A. Sim", "B. Não"], answer: [1] },
+    { q: "Otimizar DAX lento (ISEMPTY). 'NOT (ISEMPTY (CALCULATETABLE ('Order Item')))' serve?", options: ["A. Sim", "B. Não"], answer: [0] },
+    { q: "Otimizar DAX lento (ISEMPTY). 'CALCULATE (COUNTROWS ('Order Item')) > 0' serve?", options: ["A. Sim", "B. Não"], answer: [1] },
+    { q: "Novas tabelas Lakehouse adicionadas auto ao modelo padrão. O que fazer?", options: ["A. Disable Query Caching", "B. Configurar LH: 'Sync the default Power BI semantic model'", "C. Enable Refresh", "D. Make discoverable"], answer: [1] },
+    { q: "App Service acessando XMLA com Service Account (ao invés de credencial usuário). O que fazer primeiro?", options: ["A. Managed ID no workspace", "B. Config XMLA", "C. Upgrade Premium", "D. Adicionar Managed Identity ao App1"], answer: [3] },
+    { q: "T-SQL para carregar SCD Tipo 2 grande minimizando recursos.", options: ["A. UPDATE E INSERT", "B. MERGE", "C. TRUNCATE e INSERT", "D. CREATE AS SELECT"], answer: [0] },
+    { q: "RLS Dinâmica com USERNAME() retornando branco. Mudar para USEROBJECTID() resolve?", options: ["A. Sim", "B. Não"], answer: [1] },
+    { q: "RLS Dinâmica com USERNAME() retornando branco. Mudar para USERPRINCIPALNAME() resolve?", options: ["A. Sim", "B. Não"], answer: [0] },
+    { q: "PySpark stats. 'df.describe().show()' serve?", options: ["A. Sim", "B. Não"], answer: [0] }
+];
+
+    let currentQuestion = 0;
+    let score = 0;
+
+    const container = document.getElementById('quiz-container');
+    const progress = document.getElementById('progress');
+
+    function loadQuiz() {
+        quizData.forEach((data, index) => {
+            const card = document.createElement('div');
+            card.classList.add('question-card');
+            if (index === 0) card.classList.add('active');
+            card.id = `q-${index}`;
+
+            const html = `
+                <div class="question-text">${index + 1}. ${data.q}</div>
+                <ul class="options">
+                    ${data.options.map((opt, i) => `
+                        <li class="option" onclick="selectOption(${index}, ${i}, this)">${opt}</li>
+                    `).join('')}
+                </ul>
+                <div class="result-box" id="result-${index}"></div>
+                <div class="btn-container">
+                    <button class="btn-check" onclick="checkAnswer(${index})" id="btn-check-${index}">Verificar Resposta</button>
+                    <button class="btn-next" onclick="nextQuestion(${index})" id="btn-next-${index}">Próxima</button>
+                </div>
+            `;
+            card.innerHTML = html;
+            container.appendChild(card);
+        });
+    }
+
+    let selectedOptions = [];
+
+    window.selectOption = function(qIndex, oIndex, element) {
+        // Alternar seleção para permitir múltiplas escolhas se necessário, 
+        // mas para simplicidade visual deste simulado, vamos limpar anteriores se for clique simples
+        // Como algumas questões pedem 2 ou 3, vamos permitir toggle.
+        
+        if (element.classList.contains('selected')) {
+            element.classList.remove('selected');
+            selectedOptions = selectedOptions.filter(i => i !== oIndex);
+        } else {
+            element.classList.add('selected');
+            selectedOptions.push(oIndex);
+        }
+    };
+
+    window.checkAnswer = function(index) {
+        const data = quizData[index];
+        const resultBox = document.getElementById(`result-${index}`);
+        const optionsElements = document.querySelectorAll(`#q-${index} .option`);
+        const btnCheck = document.getElementById(`btn-check-${index}`);
+        const btnNext = document.getElementById(`btn-next-${index}`);
+
+        if (selectedOptions.length === 0) {
+            alert("Por favor, selecione uma resposta.");
+            return;
+        }
+
+        // Verificar
+        let isCorrect = true;
+        // Simples verificação: Se arrays de indices batem (ordenados)
+        const sortedSelected = selectedOptions.sort().toString();
+        const sortedAnswer = data.answer.sort().toString();
+        
+        if (sortedSelected !== sortedAnswer) isCorrect = false;
+
+        // Visual feedback
+        optionsElements.forEach((opt, i) => {
+            if (data.answer.includes(i)) {
+                opt.classList.add('correct'); // Mostra a correta verde
+            } else if (selectedOptions.includes(i) && !data.answer.includes(i)) {
+                opt.classList.add('wrong'); // Mostra a errada vermelho
+            }
+        });
+
+        if (isCorrect) {
+            resultBox.style.display = 'block';
+            resultBox.style.backgroundColor = '#d4edda';
+            resultBox.style.color = '#155724';
+            resultBox.innerText = "Correto!";
+            score++;
+        } else {
+            resultBox.style.display = 'block';
+            resultBox.style.backgroundColor = '#f8d7da';
+            resultBox.style.color = '#721c24';
+            resultBox.innerText = "Incorreto. Veja as respostas em verde.";
+        }
+
+        btnCheck.style.display = 'none';
+        btnNext.style.display = 'block';
+    };
+
+    window.nextQuestion = function(index) {
+        selectedOptions = []; // Reset selection
+        const currentCard = document.getElementById(`q-${index}`);
+        const nextCard = document.getElementById(`q-${index + 1}`);
+
+        currentCard.classList.remove('active');
+        
+        if (nextCard) {
+            nextCard.classList.add('active');
+            progress.innerText = `Questão ${index + 2} de ${quizData.length}`;
+        } else {
+            container.innerHTML = `<div style="text-align:center"><h2>Simulado Finalizado!</h2><p>Você acertou ${score} de ${quizData.length}.</p><button class="btn-check" onclick="location.reload()">Reiniciar</button></div>`;
+            progress.innerText = "Concluído";
+        }
+    };
+
+    loadQuiz();
+</script>
+
+</body>
+</html>
