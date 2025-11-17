@@ -1,221 +1,243 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simulado DP-600: Microsoft Fabric</title>
-    <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f2f5; margin: 0; padding: 20px; color: #333; }
-        .container { max-width: 800px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        h1 { text-align: center; color: #0078d4; font-size: 1.5em; }
-        .progress { text-align: center; margin-bottom: 20px; color: #666; font-size: 0.9em; }
-        .question-card { display: none; }
-        .question-card.active { display: block; animation: fadeIn 0.5s; }
-        .question-text { font-size: 1.1em; margin-bottom: 20px; font-weight: 500; line-height: 1.5; }
-        .context { background: #eef6fc; padding: 10px; border-left: 4px solid #0078d4; margin-bottom: 15px; font-size: 0.9em; color: #444; }
-        .options { list-style: none; padding: 0; }
-        .option { background: #fafafa; border: 1px solid #ddd; padding: 15px; margin-bottom: 10px; border-radius: 8px; cursor: pointer; transition: all 0.2s; }
-        .option:hover { background: #f0f0f0; }
-        .option.selected { border-color: #0078d4; background-color: #eeffff; }
-        .option.correct { background-color: #d4edda; border-color: #28a745; color: #155724; }
-        .option.wrong { background-color: #f8d7da; border-color: #dc3545; color: #721c24; }
-        .btn-container { display: flex; justify-content: space-between; margin-top: 20px; }
-        button { padding: 10px 20px; border: none; border-radius: 5px; font-size: 1em; cursor: pointer; }
-        .btn-check { background-color: #0078d4; color: white; width: 100%; }
-        .btn-next { background-color: #28a745; color: white; display: none; margin-left: 10px; }
-        .result-box { margin-top: 15px; padding: 15px; border-radius: 5px; display: none; font-weight: bold; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-    </style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Simulado DP-600 — Versão Melhorada</title>
+<style>
+:root{--bg:#f3f6f9;--card:#ffffff;--primary:#0078d4;--accent:#28a745;--muted:#6b7280;--radius:12px;--shadow:0 6px 20px rgba(16,24,40,0.06);font-family:Inter, 'Segoe UI', system-ui, -apple-system, 'Helvetica Neue', Arial}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;background:var(--bg);color:#0f172a}
+.wrap{max-width:980px;margin:28px auto;padding:20px}
+header{display:flex;align-items:center;gap:16px;margin-bottom:18px}
+header h1{font-size:1.25rem;margin:0;color:var(--primary)}
+.card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px}
+.progress{font-size:0.95rem;color:var(--muted);margin-bottom:12px}
+.question-text{font-size:1.05rem;margin-bottom:12px;line-height:1.45}
+.options{list-style:none;padding:0;margin:0}
+.option{background:#fafafa;border:1px solid #e6eef8;padding:12px;border-radius:10px;margin-bottom:10px;cursor:pointer;transition:all .15s}
+.option:hover{transform:translateY(-2px)}
+.option.selected{border-color:var(--primary);background:#eef9ff}
+.option.correct{background:#d4edda;border-color:#28a745;color:#155724}
+.option.wrong{background:#f8d7da;border-color:#dc3545;color:#721c24}
+.controls{display:flex;gap:10px;justify-content:space-between;margin-top:16px}
+button{padding:10px 16px;border-radius:8px;border:0;cursor:pointer;font-size:1rem}
+.btn-primary{background:var(--primary);color:white}
+.btn-ghost{background:transparent;border:1px solid #ddd}
+.summary{margin-top:18px;padding:12px;border-radius:8px;background:#fff7ed;border:1px solid #ffefd5;color:#663c00}
+.final-card{text-align:center;padding:20px}
+.err-list{text-align:left;margin-top:12px}
+.small{font-size:0.9rem;color:var(--muted)}
+@media(max-width:640px){.wrap{padding:12px}}
+</style>
 </head>
 <body>
+<div class="wrap card">
+  <header>
+    <div>
+      <h1>Simulado DP-600 — Versão Melhorada</h1>
+      <div class="small">65 questões (texto). Use "Verificar Resposta" para mostrar a resposta correta.</div>
+    </div>
+  </header>
 
-<div class="container">
-    <h1>Simulado DP-600</h1>
-    <div class="progress" id="progress">Questão 1 de 63</div>
-    <div id="quiz-container">
-        </div>
+  <div id="quiz" >
+    <div class="progress" id="progress">Questão 1 de 65</div>
+    <div id="question-area"></div>
+    <div class="controls">
+      <button id="btn-prev" class="btn-ghost">Anterior</button>
+      <div style="flex:1"></div>
+      <button id="btn-check" class="btn-primary">Verificar Resposta</button>
+      <button id="btn-next" class="btn-primary" style="display:none;margin-left:8px">Próxima</button>
+    </div>
+    <div id="result-box" class="summary" style="display:none"></div>
+  </div>
 </div>
 
 <script>
+// ===== QUIZ DATA (65 questões extraídas do seu documento) =====
 const quizData = [
-    { q: "Você tem um tenant do Fabric com um modelo de ML. Você precisa usar a função PREDICT em um notebook. Quais duas linguagens você pode usar?", options: ["A. T-SQL", "B. DAX", "C. Spark SQL", "D. PySpark"], answer: [2, 3] },
-    { q: "Você usa um dataflow para carregar dados para um warehouse. Precisa adicionar uma etapa do Power Query para identificar valores máximos das colunas numéricas. Qual função usar?", options: ["A. Table.MaxN", "B. Table.Max", "C. Table.Range", "D. Table.Profile"], answer: [3] },
-    { q: "Você planeja se conectar ao Lakehouse1 (que tem tabelas Delta, externas e gerenciadas) usando seu SQL endpoint. O que você será capaz de fazer?", options: ["A. Ler a Tabela3", "B. Atualizar os dados na Tabela3", "C. Ler a Tabela2", "D. Atualizar os dados na Tabela1"], answer: [0] },
-    { q: "Você está analisando dados em um notebook Spark. Precisa usar a visualização de Gráfico (Chart view). Qual função executar?", options: ["A. displayHTML", "B. show", "C. write", "D. display"], answer: [3] },
-    { q: "Um visual Python no Power BI está agrupando linhas duplicadas automaticamente. Você precisa que TODAS as linhas apareçam.", options: ["A. Referenciar por índice", "B. Classificar Coluna por", "C. Adicionar um campo único a cada linha", "D. Modificar Resumir Por"], answer: [2] },
-    { q: "Você precisa garantir acesso de leitura e escrita a um dataset (DS1) usando o endpoint XMLA. O que deve ser modificado primeiro?", options: ["A. Configurações do DS1", "B. Configurações do WS1", "C. Configurações da Capacidade (C1)", "D. Configurações do Tenant1"], answer: [2] },
-    { q: "Recomendar solução para usuários criarem modelos Direct Lake usando ferramentas externas (Princípio do menor privilégio). Quais 3 ações?", options: ["A. XMLA habilitado no Tenant", "B. Usuários convidados habilitados", "C. Usuários podem editar modelo", "D. Endpoint XMLA como Leitura/Escrita na Capacidade", "E. Usuários podem criar itens Fabric", "F. Publicar na Web"], answer: [1, 3, 4] },
-    { q: "Você vai usar TMDL no VS Code para alterações em massa. Qual formato de arquivo usar para salvar o modelo semântico?", options: ["A. PBIP", "B. PBIX", "C. PBIT", "D. PBIDS"], answer: [0] },
-    { q: "Configurar pipeline de implantação. Desenvolvedores devem implantar em Dev/Test, mas NÃO em Produção. Quais 3 níveis de acesso?", options: ["A. Build em Prod", "B. Admin no pipeline", "C. Visualizador em Dev/Test", "D. Visualizador em Prod", "E. Contribuidor em Dev/Test", "F. Contribuidor em Prod"], answer: [2, 3, 4] }, // Correção baseada na lógica: Viewer em Prod impede deploy, Contributor em Dev/Test permite deploy.
-    { q: "Modelo DirectQuery com 500 milhões de linhas. Precisa reduzir tempo de execução para visuais em todas as páginas. Quais dois recursos?", options: ["A. Agregações definidas pelo usuário", "B. Agregação automática", "C. Cache de consulta", "D. OneLake integration"], answer: [0, 1] },
-    { q: "Atualização incremental falha por falta de recursos em arquivos CSV no OneLake. Qual a causa provável?", options: ["A. Query folding ocorrendo", "B. Apenas dias completos selecionado", "C. XMLA Read Only", "D. Query folding NÃO está ocorrendo", "E. Tipo de dado da coluna de partição alterado"], answer: [4] },
-    { q: "Habilitar scale-out (expansão) para um modelo semântico na capacidade Premium. O que fazer primeiro?", options: ["A. Formato grande Desligado", "B. Métricas Habilitado", "C. Formato de armazenamento de conjunto de dados grande Ligado", "D. Data Activator Habilitado"], answer: [2] },
-    { q: "Modelo Direct Lake usando tabelas Delta e RLS de um warehouse. Qual modo será usado pelas consultas DAX?", options: ["A. DirectQuery", "B. Dual", "C. Direct Lake", "D. Import"], answer: [0] },
-    { q: "Criar diagrama do modelo mostrando APENAS a tabela Sales e relacionadas. O que usar no Power BI Desktop?", options: ["A. Categorias de dados", "B. Modo de exibição de dados", "C. Modo de exibição de modelo", "D. Modo de exibição de consulta DAX"], answer: [2] },
-    { q: "Modelo Direct Lake. Identificar colunas usadas com frequência carregadas na memória (cache). Quais duas maneiras?", options: ["A. Analisar no Excel", "B. Vertipaq Analyzer", "C. DMV $System.DISCOVER_STORAGE_TABLE_COLUMN_SEGMENTS", "D. DMV DISCOVER_MEMORYGRANT"], answer: [1, 2] },
-    { q: "Reduzir memória e tempo de atualização de tabela 'Orders' (100mi linhas). Colunas: DataHora, Qtd, Preço, Total(Calc), TotalQtd(Medida). Quais duas ações?", options: ["A. Dividir OrderDateTime em data e hora", "B. Substituir TotalQuantity por coluna calculada", "C. Converter Quantity para Texto", "D. Substituir TotalSalesAmount por uma medida"], answer: [0, 3] },
-    { q: "Impedir criadores de relatórios de usar medidas implícitas. Quais duas ferramentas usar?", options: ["A. Power BI Desktop", "B. Tabular Editor", "C. SSMS", "D. DAX Studio"], answer: [0, 1] },
-    { q: "Pipeline de dados para copiar dados externos (esquema muda regularmente) para Table1. Requisitos: Substituir esquema e dados. O que configurar na atividade Copy?", options: ["A. Source: colunas adicionais", "B. Destination: Table action 'Overwrite'", "C. Settings: Enable staging", "D. Source: Enable partition discovery"], answer: [1] },
-    { q: "Consultar arquivos de vendas (Amazon S3) via SQL endpoint. Quais duas recomendações (Formato e Atalho)?", options: ["A. Atalho em 'Arquivos'", "B. Formato Parquet", "C. Formato CSV", "D. Atalho em 'Tabelas'", "E. Formato Delta"], answer: [3, 4] },
-    { q: "Converter CSV para Delta com V-Order no Lakehouse. O que fazer no explorador?", options: ["A. Carregar em Tabelas", "B. Novo atalho em 'Arquivos'", "C. Novo atalho em 'Tabelas'", "D. Otimizar"], answer: [0] }, /* Ajustado para lógica de Load to Tables */
-    { q: "Copiar dados para tabela não particionada e particionar por data. O que fazer primeiro na atividade Copy (Destino)?", options: ["A. Mode: Append", "B. Selecionar coluna de partição", "C. Source: Partition discovery", "D. Mode: Overwrite"], answer: [3] },
-    { q: "Solução para popular data store usando dataflows (append) e tabelas Delta com V-Order. Quais dois stores?", options: ["A. Lakehouse", "B. SQL Database", "C. Warehouse", "D. KQL Database"], answer: [0, 2] },
-    { q: "Pipeline deve rodar a cada 4 horas nas segundas e sextas. Qual opção de 'Repetir'?", options: ["A. Diariamente", "B. Por minuto", "C. Semanalmente", "D. Por hora"], answer: [2] },
-    { q: "Desempenho do warehouse degrada. Suspeita de Throttling. O que usar para identificar?", options: ["A. Config Capacity", "B. Monitoring hub", "C. DMVs", "D. App Métricas de Capacidade Fabric"], answer: [3] },
-    { q: "Relatório demorando 45 min (travado). Identificar o que impede a conclusão. Qual DMV?", options: ["A. sys.dm_exec_requests", "B. sys.dm_exec_sessions", "C. sys.dm_exec_connections", "D. sys.dm_pdw_exec_requests"], answer: [0] },
-    { q: "Padrão de carregamento SCD Tipo 1. Quais duas ações?", options: ["A. Atualizar linhas se atributos mudaram", "B. Inserir se chave existe e atributos mudaram", "C. Atualizar data fim", "D. Inserir novos registros se chave nova"], answer: [0, 3] },
-    { q: "PySpark Join: Tabela 'transactions' (10mi linhas) e 'customers' (1000 linhas). Minimizar shuffling.", options: ["A. transactions.join(F.broadcast(customers)...)", "B. join(...).distinct()", "C. Standard join", "D. crossJoin"], answer: [0] },
-    { q: "PySpark: Calcular min, max, mean, stddev para colunas string e numéricas. 'df.explain()' atende?", options: ["A. Sim", "B. Não"], answer: [1] },
-    { q: "PySpark: Calcular min, max, mean, stddev. 'df.show()' atende?", options: ["A. Sim", "B. Não"], answer: [1] },
-    { q: "PySpark: Calcular min, max, mean, stddev. 'df.summary()' atende?", options: ["A. Sim", "B. Não"], answer: [0] },
-    { q: "Spark SQL: Verificar se manutenção foi feita na tabela Delta. 'DESCRIBE HISTORY customer' atende?", options: ["A. Sim", "B. Não"], answer: [0] },
-    { q: "Spark SQL: Verificar manutenção. 'REFRESH TABLE customer' atende?", options: ["A. Sim", "B. Não"], answer: [1] },
-    { q: "Spark SQL: Verificar manutenção. 'EXPLAIN TABLE customer' atende?", options: ["A. Sim", "B. Não"], answer: [1] },
-    { q: "Controle de versão (Git) PB Desktop. Salvar como arquivos de texto em hierarquia de pastas. Qual formato?", options: ["A. PBIP", "B. PBIDS", "C. PBIT", "D. PBIX"], answer: [0] },
-    { q: "Pipeline para copiar CSV para Lakehouse suportando expressões Power Query (M). Qual atividade?", options: ["A. Dataflow", "B. Notebook", "C. Script", "D. Copy data"], answer: [0] },
-    { q: "Visual Query: Mesclar duas tabelas e retornar TODAS as linhas de ambas.", options: ["A. Inner", "B. Full outer", "C. Left outer", "D. Right anti"], answer: [1] },
-    { q: "Remover arquivos Delta não referenciados há 30 dias (manter ACID).", options: ["A. Excluir no OneLake", "B. OPTIMIZE Z-order", "C. OPTIMIZE V-order", "D. VACUUM"], answer: [3] },
-    { q: "Dataflow: Inner join ignorando espaços nos valores.", options: ["A. Append (fuzzy)", "B. Merge (fuzzy)", "C. Append (lookup)", "D. Merge (lookup)"], answer: [1] },
-    { q: "Warehouse: Copiar schema1.city para schema2.city minimizando cópia de dados (Clone).", options: ["A. INSERT INTO...", "B. SELECT * INTO...", "C. CREATE TABLE ... AS CLONE OF", "D. CREATE TABLE ... AS SELECT"], answer: [2] },
-    { q: "Lakehouse: Impedir que novas tabelas sejam adicionadas automaticamente ao modelo semântico padrão.", options: ["A. Configurações do SQL analytics endpoint", "B. Config do modelo", "C. Config do workspace", "D. Config do Lakehouse"], answer: [0] },
-    { q: "Pipeline: Executar stored procedure no warehouse e passar retorno para atividades downstream.", options: ["A. Switch", "B. Copy data", "C. Append variable", "D. Lookup"], answer: [3] },
-    { q: "Consultar tabelas de dois Lakehouses diferentes (Workspaces diferentes) na mesma query SQL (sem cópia).", options: ["A. Atalho (Shortcut)", "B. Dataflow", "C. View", "D. Managed table"], answer: [0] },
-    { q: "Warehouse Star Schema SCD Tipo 2. Quais 3 colunas adicionar?", options: ["A. Foreign Key", "B. Natural Key", "C. Data/Hora Fim Vigência", "D. Surrogate Key (Substituta)", "E. Data/Hora Início Vigência"], answer: [2, 3, 4] },
-    { q: "Pipeline: Atividade 2 deve rodar mesmo se Atividade 1 falhar. Qual caminho condicional?", options: ["A. Upon Failure", "B. Upon Completion", "C. Upon Skip", "D. Upon Success"], answer: [1] },
-    { q: "Identificar colunas Surrogate Key com 'Summarize By' incorreto. Minimizar esforço.", options: ["A. DAX Formatter", "B. Model explorer", "C. Model view", "D. Best Practice Analyzer (Tabular Editor)"], answer: [3] },
-    { q: "Alterar programaticamente colunas terminadas em 'Key' (Ocultar, No Null, No Summarize, Key Column).", options: ["A. PB Desktop", "B. ALM Toolkit", "C. Tabular Editor", "D. DAX Studio"], answer: [2] },
-    { q: "Performance Analyzer: Visual lento. 'Other' = 1047ms, DAX = 27ms. Melhor redução?", options: ["A. Atualização auto página", "B. Otimizar DAX", "C. Alterar tipo visual", "D. Reduzir número de visuais no relatório"], answer: [3] },
-    { q: "Garantir que usuários sempre usem Direct Lake (Tabular Editor XMLA).", options: ["A. Default Mode", "B. Partitions Mode", "C. Storage Location", "D. Direct Lake Behavior"], answer: [3] },
-    { q: "Substituir FILTER por KEEPFILTERS melhora performance quando...", options: ["A. CALCULATE aninhado", "B. Referencia medida", "C. Múltiplas tabelas", "D. FILTER referencia coluna de tabela única (Import mode)"], answer: [3] },
-    { q: "RLS Dinâmica: Gerente RH diz que dados estão incompletos. Como validar o que ele vê?", options: ["A. Test as role (dados)", "B. Filtrar relatório", "C. Test as role (ver relatório como usuário específico)", "D. Pedir para abrir no Desktop"], answer: [2] },
-    { q: "1 bilhão de JSONs no OneLake. Time Series, processamento paralelo, minimizar tempo carga. Transformar e visualizar?", options: ["A. PySpark em notebook", "B. Pandas em notebook", "C. Power BI"], answer: [0] },
-    { q: "Análise de churn: Gráficos comparando retidos vs perdidos por geografia/idade/tempo. Que tipo de análise?", options: ["A. Diagnóstica", "B. Descritiva", "C. Prescritiva", "D. Preditiva"], answer: [1] },
-    { q: "Dataflow: Identificar min/max nos resultados. Quais 3 opções de 'Exibir'?", options: ["A. Distribuição valores", "B. Perfil de coluna", "C. Perfil no painel detalhes", "D. Qualidade coluna", "E. Painel de detalhes"], answer: [1, 2, 4] },
-    { q: "Power Query: Exibir estatísticas (Count, Avg, Null, Distinct, StdDev).", options: ["A. Table.schema", "B. Table.view", "C. Table.FuzzyGroup", "D. Table.Profile"], answer: [3] },
-    { q: "Verificar manutenção tabela Delta. 'DESCRIBE DETAIL customer' serve?", options: ["A. Sim", "B. Não"], answer: [1] },
-    { q: "PySpark stats (min/max/stddev). 'df.explain().show()' serve?", options: ["A. Sim", "B. Não"], answer: [1] },
-    { q: "Otimizar DAX lento (ISEMPTY). 'ISEMPTY ( RELATEDTABLE ('Order Item') )' serve?", options: ["A. Sim", "B. Não"], answer: [1] },
-    { q: "Otimizar DAX lento (ISEMPTY). 'NOT (ISEMPTY (CALCULATETABLE ('Order Item')))' serve?", options: ["A. Sim", "B. Não"], answer: [0] },
-    { q: "Otimizar DAX lento (ISEMPTY). 'CALCULATE (COUNTROWS ('Order Item')) > 0' serve?", options: ["A. Sim", "B. Não"], answer: [1] },
-    { q: "Novas tabelas Lakehouse adicionadas auto ao modelo padrão. O que fazer?", options: ["A. Disable Query Caching", "B. Configurar LH: 'Sync the default Power BI semantic model'", "C. Enable Refresh", "D. Make discoverable"], answer: [1] },
-    { q: "App Service acessando XMLA com Service Account (ao invés de credencial usuário). O que fazer primeiro?", options: ["A. Managed ID no workspace", "B. Config XMLA", "C. Upgrade Premium", "D. Adicionar Managed Identity ao App1"], answer: [3] },
-    { q: "T-SQL para carregar SCD Tipo 2 grande minimizando recursos.", options: ["A. UPDATE E INSERT", "B. MERGE", "C. TRUNCATE e INSERT", "D. CREATE AS SELECT"], answer: [0] },
-    { q: "RLS Dinâmica com USERNAME() retornando branco. Mudar para USEROBJECTID() resolve?", options: ["A. Sim", "B. Não"], answer: [1] },
-    { q: "RLS Dinâmica com USERNAME() retornando branco. Mudar para USERPRINCIPALNAME() resolve?", options: ["A. Sim", "B. Não"], answer: [0] },
-    { q: "PySpark stats. 'df.describe().show()' serve?", options: ["A. Sim", "B. Não"], answer: [0] }
+  {"q":"Você tem um tenant (locatário) do Fabric que contém um modelo de machine learning registrado em um workspace do Fabric. Você precisa usar o modelo para gerar previsões usando a função PREDICT em um notebook do Fabric. Quais duas linguagens você pode usar para realizar a pontuação (scoring) do modelo? Cada resposta correta apresenta uma solução completa. NOTA: Cada resposta correta vale um ponto.","options":["A. T-SQL","B. DAX","C. Spark SQL (RESPOSTA CORRETA)","D. PySpark (RESPOSTA CORRETA)"],"answer":[2,3]},
+  {"q":"Você tem um tenant (locatário) do Fabric que contém um warehouse. Você usa um dataflow (fluxo de dados) para carregar um novo conjunto de dados do OneLake para o warehouse. Você precisa adicionar uma etapa do Power Query para identificar os valores máximos das colunas numéricas. Qual função você deve incluir na etapa?","options":["A. Table.MaxN","B. Table.Max","C. Table.Range","D. Table.Profile (RESPOSTA CORRETA)"],"answer":[3]},
+  {"q":"Você é o administrador de um workspace (área de trabalho) do Fabric que contém um lakehouse chamado Lakehouse1. O Lakehouse1 contém as seguintes tabelas: Tabela1: Uma tabela Delta criada usando um atalho (shortcut) Tabela2: Uma tabela externa criada usando Spark Tabela3: Uma tabela gerenciada (managed table) Você planeja se conectar ao Lakehouse1 usando seu SQL endpoint (ponto de extremidade SQL). O que você será capaz de fazer após se conectar ao Lakehouse1?","options":["A. Ler a Tabela3. (RESPOSTA CORRETA)","B. Atualizar os dados na Tabela3.","C. Ler a Tabela2.","D. Atualizar os dados na Tabela1."],"answer":[0]},
+  {"q":"Você está analisando dados em um notebook do Fabric. Você tem um Spark DataFrame atribuído a uma variável chamada df. Você precisa usar a visualização de Gráfico (Chart view) no notebook para explorar os dados manualmente. Qual função você deve executar para disponibilizar os dados na visualização de Gráfico?","options":["A. displayHTML","B. show","C. write","D. display (RESPOSTA CORRETA)"],"answer":[3]},
+  {"q":"Você tem um tenant (locatário) do Fabric que contém um relatório do Microsoft Power BI chamado Report1. O Report1 inclui um visual Python. Os dados exibidos pelo visual são agrupados automaticamente e as linhas duplicadas NÃO são exibidas. Você precisa que todas as linhas apareçam no visual. O que você deve fazer?","options":["A. Referenciar as colunas no código Python pelo índice.","B. Modificar a propriedade \"Classificar Coluna por\" (Sort Column By) para todas as colunas.","C. Adicionar um campo único a cada linha. (RESPOSTA CORRETA)","D. Modificar a propriedade \"Resumir Por\" (Summarize By) para todas as colunas."],"answer":[2]},
+  {"q":"Você tem um tenant (locatário) do Fabric chamado Tenant1 que contém um workspace (área de trabalho) chamado WS1. O WS1 usa uma capacidade (capacity) chamada C1 e contém um conjunto de dados (dataset) chamado DS1. Você precisa garantir que o acesso de leitura e escrita (read-write) ao DS1 esteja disponível usando o endpoint XMLA. O que deve ser modificado primeiro?","options":["A. as configurações do DS1","B. as configurações do WS1","C. as configurações do C1 (RESPOSTA CORRETA)","D. as configurações do Tenant1"],"answer":[2]},
+  {"q":"Você tem um tenant (locatário) do Fabric que contém um workspace (área de trabalho) chamado Workspace1. O Workspace1 está atribuído a uma capacidade (capacity) do Fabric. Você precisa recomendar uma solução para dar aos usuários a capacidade de criar e publicar modelos semânticos Direct Lake personalizados usando ferramentas externas. A solução deve seguir o princípio do menor privilégio. Quais três ações no portal de administração do Fabric você deve incluir na recomendação? Cada resposta correta apresenta parte da solução. NOTA: Cada resposta correta vale um ponto.","options":["A. Nas configurações do Tenant, definir \"Permitir Endpoints XMLA e Analisar no Excel com conjuntos de dados locais\" como Habilitado. (RESPOSTA CORRETA)","B. Nas configurações do Tenant, definir \"Permitir que usuários convidados do Azure Active Directory acessem o Microsoft Fabric\" como Habilitado.","C. Nas configurações do Tenant, selecionar \"Usuários podem editar o modelo de dados no serviço do Power BI\".","D. Nas configurações da Capacidade, definir \"Endpoint XMLA\" como Leitura e Escrita (Read Write). (RESPOSTA CORRETA)","E. Nas configurações do Tenant, definir \"Usuários podem criar itens do Fabric\" como Habilitado. (RESPOSTA CORRETA)","F. Nas configurações do Tenant, habilitar \"Publicar na Web\"."],"answer":[0,3,4]},
+  {"q":"Você está criando um modelo semântico no Microsoft Power BI Desktop. Você planeja fazer alterações em massa no modelo usando a extensão Tabular Model Definition Language (TMDL) para o Microsoft Visual Studio Code. Você precisa salvar o modelo semântico em um arquivo. Qual formato de arquivo você deve usar?","options":["A. PBIP (RESPOSTA CORRETA)","B. PBIX","C. PBIT","D. PBIDS"],"answer":[0]},
+  {"q":"Você planeja implantar itens do Microsoft Power BI usando pipelines de implantação (deployment pipelines) do Fabric. Você tem um pipeline de implantação que contém três estágios chamados Desenvolvimento (Development), Teste (Test) e Produção (Production). Um workspace (área de trabalho) está atribuído a cada estágio. Você precisa fornecer aos desenvolvedores do Power BI acesso ao pipeline. A solução deve atender aos seguintes requisitos: Garantir que os desenvolvedores possam implantar itens nos workspaces de Desenvolvimento e Teste. Impedir que os desenvolvedores implantem itens no workspace de Produção. Seguir o princípio do menor privilégio. Quais três níveis de acesso você deve atribuir aos desenvolvedores? Cada resposta correta apresenta parte da solução. NOTA: Cada resposta correta vale um ponto.","options":["A. Permissão de \"Compilação\" (Build) para os modelos semânticos de produção.","B. Acesso de \"Administrador\" (Admin) ao pipeline de implantação. (RESPOSTA CORRETA)","C. Acesso de \"Visualizador\" (Viewer) aos workspaces de Desenvolvimento e Teste.","D. Acesso de \"Visualizador\" (Viewer) ao workspace de Produção. (RESPOSTA CORRETA)","E. Acesso de \"Contribuidor\" (Contributor) aos workspaces de Desenvolvimento e Teste. (RESPOSTA CORRETA)","F. Acesso de \"Contribuidor\" (Contributor) ao workspace de Produção."],"answer":[1,3,4]},
+  {"q":"Você tem um workspace (área de trabalho) do Fabric que contém um modelo semântico DirectQuery. O modelo consulta uma fonte de dados que possui 500 milhões de linhas. Você tem um relatório do Microsoft Power BI chamado Report1 que usa o modelo. O Report1 contém visuais em várias páginas. Você precisa reduzir o tempo de execução da consulta para os visuais em todas as páginas. Quais dois recursos você pode usar? Cada resposta correta apresenta uma solução completa. NOTA: Cada resposta correta vale um ponto.","options":["A. Agregações definidas pelo usuário (user-defined aggregations) (RESPOSTA CORRETA)","B. Agregação automática (automatic aggregation) (RESPOSTA CORRETA)","C. Cache de consulta (query caching)","D. Integração com o OneLake (OneLake integration)"],"answer":[0,1]},
+  {"q":"Você tem um tenant (locatário) do Fabric que contém 30 arquivos CSV no OneLake. Os arquivos são atualizados diariamente. Você cria um modelo semântico do Microsoft Power BI chamado Model1 que usa os arquivos CSV como fonte de dados. Você configura a atualização incremental (incremental refresh) para o Model1 e publica o modelo em uma capacidade Premium no tenant do Fabric. Ao iniciar uma atualização do Model1, a atualização falha por falta de recursos (running out of resources). Qual é uma causa provável da falha?","options":["A. O Query folding (dobragem de consulta) está ocorrendo.","B. A opção \"Atualizar apenas dias completos\" (Only refresh complete days) está selecionada.","C. O Endpoint XMLA está definido como Somente Leitura (Read Only).","D. O Query folding (dobragem de consulta) NÃO está ocorrendo.","E. O tipo de dado da coluna usada para particionar os dados foi alterado. (RESPOSTA CORRETA)"],"answer":[4]},
+  {"q":"Você tem um tenant (locatário) do Fabric que usa uma capacidade Microsoft Power BI Premium. Você precisa habilitar o scale-out (expansão) para um modelo semântico. O que você deve fazer primeiro?","options":["A. No nível do modelo semântico, definir o \"Formato de armazenamento de conjunto de dados grande\" (Large dataset storage format) como Desligado (Off).","B. No nível do tenant, definir \"Criar e usar Métricas\" (Create and use Metrics) como Habilitado (Enabled).","C. No nível do modelo semântico, definir o \"Formato de armazenamento de conjunto de dados grande\" (Large dataset storage format) como Ligado (On). (RESPOSTA CORRETA)","D. No nível do tenant, definir o \"Ativador de Dados\" (Data Activator) como Habilitado (Enabled)."],"answer":[2]},
+  {"q":"Você tem um tenant (locatário) do Fabric que contém um warehouse. O warehouse usa segurança em nível de linha (RLS). Você cria um modelo semântico Direct Lake que usa as tabelas Delta e a RLS do warehouse. Quando os usuários interagem com um relatório criado a partir do modelo, qual modo será usado pelas consultas DAX?","options":["A. DirectQuery (RESPOSTA CORRETA)","B. Dual","C. Direct Lake","D. Import"],"answer":[0]},
+  {"q":"Você tem um tenant (locatário) do Fabric que contém um modelo semântico complexo. O modelo é baseado em um esquema estrela (star schema) e contém muitas tabelas, incluindo uma tabela fato chamada Sales. Você precisa criar um diagrama do modelo. O diagrama deve conter apenas a tabela Sales e as tabelas relacionadas a ela. O que você deve usar no Microsoft Power BI Desktop?","options":["A. Categorias de dados (Data categories)","B. Modo de exibição de dados (Data view)","C. Modo de exibição de modelo (Model view) (RESPOSTA CORRETA)","D. Modo de exibição de consulta DAX (DAX query view)"],"answer":[2]},
+  {"q":"Você tem um tenant (locatário) do Fabric que contém um modelo semântico. O modelo usa o modo Direct Lake. Você suspeita que algumas consultas DAX carregam colunas desnecessárias na memória (cache). Você precisa identificar as colunas usadas com frequência que são carregadas na memória. Quais são as duas maneiras de atingir esse objetivo? Cada resposta correta apresenta uma solução completa. NOTA: Cada resposta correta vale um ponto.","options":["A. Usar o recurso \"Analisar no Excel\" (Analyze in Excel).","B. Usar a ferramenta Vertipaq Analyzer. (RESPOSTA CORRETA)","C. Consultar a exibição de gerenciamento dinâmico (DMV) $System.DISCOVER_STORAGE_TABLE_COLUMN_SEGMENTS. (RESPOSTA CORRETA)","D. Consultar a exibição de gerenciamento dinâmico (DMV) DISCOVER_MEMORYGRANT."],"answer":[1,2]},
+  {"q":"Você tem um tenant (locatário) do Fabric que contém um modelo semântico chamado Model1. O Model1 usa o modo Importação (Import mode). O Model1 contém uma tabela chamada Orders. A tabela Orders tem 100 milhões de linhas e os seguintes campos: OrderID (Integer), OrderDateTime (Date/Time), Quantity (Integer), Price (Decimal), TotalSalesAmount (Decimal - coluna calculada), TotalQuantity (Integer - medida). Você precisa reduzir a memória usada pelo Model1 e o tempo que leva para atualizar o modelo. Quais duas ações você deve realizar?","options":["A. Dividir OrderDateTime em colunas separadas de data e hora. (RESPOSTA CORRETA)","B. Substituir TotalQuantity por uma coluna calculada.","C. Converter Quantity para o tipo de dado Texto.","D. Substituir TotalSalesAmount por uma medida. (RESPOSTA CORRETA)"],"answer":[0,3]},
+  {"q":"Você tem um tenant (locatário) do Fabric que contém um modelo semântico. Você precisa impedir que os criadores de relatórios preencham visuais usando medidas implícitas (implicit measures). Quais são as duas ferramentas que você pode usar para atingir esse objetivo? Cada resposta correta apresenta uma solução completa.","options":["A. Microsoft Power BI Desktop (RESPOSTA CORRETA)","B. Tabular Editor (RESPOSTA CORRETA)","C. Microsoft SQL Server Management Studio (SSMS)","D. DAX Studio"],"answer":[0,1]},
+  {"q":"Você tem um tenant (locatário) do Fabric que contém um lakehouse chamado Lakehouse1. O Lakehouse1 contém uma tabela chamada Table1. Você está criando um novo pipeline de dados. Você planeja copiar dados externos para a Table1. O esquema (schema) dos dados externos muda regularmente. Você precisa que a operação de cópia atenda aos seguintes requisitos: Substituir o esquema da Table1 pelo esquema dos dados externos. Substituir todos os dados na Table1 pelas linhas dos dados externos. Você adiciona uma atividade de \"Copy data\" (Copiar dados) ao pipeline. O que você deve fazer na atividade \"Copy data\"?","options":["A. Na guia \"Origem\" (Source), adicionar colunas adicionais.","B. Na guia \"Destino\" (Destination), definir a \"Ação da tabela\" (Table action) como \"Overwrite\" (Substituir). (RESPOSTA CORRETA)","C. Na guia \"Configurações\" (Settings), selecionar \"Habilitar preparo\" (Enable staging).","D. Na guia \"Origem\" (Source), selecionar \"Habilitar descoberta de partição\" (Enable partition discovery).","E. Na guia \"Origem\" (Source), selecionar \"Recursivamente\" (Recursively)."],"answer":[1]},
+  {"q":"Você tem um tenant (locatário) do Fabric que contém um lakehouse. Você planeja consultar arquivos de dados de vendas usando o SQL endpoint (ponto de extremidade SQL). Os arquivos estarão em um bucket de armazenamento Amazon S3. Você precisa recomendar qual formato de arquivo usar e onde criar um atalho (shortcut). Quais duas ações você deve incluir na recomendação? Cada resposta correta apresenta parte da solução.","options":["A. Criar um atalho na seção \"Arquivos\" (Files).","B. Usar o formato Parquet.","C. Usar o formato CSV.","D. Criar um atalho na seção \"Tabelas\" (Tables). (RESPOSTA CORRETA)","E. Usar o formato delta. (RESPOSTA CORRETA)"],"answer":[3,4]},
+  {"q":"Você tem um tenant (locatário) do Fabric que contém um lakehouse chamado Lakehouse1. O Lakehouse1 contém uma subpasta chamada Subfolder1 que contém arquivos CSV. Você precisa converter os arquivos CSV para o formato delta e garantir que a otimização V-Order (V-Order optimization) esteja habilitada. O que você deve fazer a partir do explorador (explorer) do Lakehouse?","options":["A. Usar o recurso \"Carregar em Tabelas\" (Load to Tables). (RESPOSTA CORRETA)","B. Criar um novo atalho na seção \"Arquivos\" (Files).","C. Criar um novo atalho na seção \"Tabelas\" (Tables).","D. Usar o recurso \"Otimizar\" (Optimize)."],"answer":[0]},
+  {"q":"Você tem um tenant (locatário) do Fabric que contém um lakehouse chamado Lakehouse1. O Lakehouse1 contém uma tabela não particionada (unpartitioned) chamada Table1. Você planeja copiar dados para a Table1 e particionar a tabela com base em uma coluna de data dos dados de origem. Você cria uma atividade \"Copy\" (Copiar) para copiar os dados para a Table1. Você precisa especificar a coluna de partição nas configurações de \"Destino\" (Destination) da atividade \"Copy\". O que você deve fazer primeiro?","options":["A. Na guia \"Destino\", definir o \"Modo\" (Mode) como \"Append\" (Anexar).","B. Na guia \"Destino\", selecionar a coluna de partição.","C. Na guia \"Origem\" (Source), selecionar \"Habilitar descoberta de partição\" (Enable partition discovery).","D. Na guia \"Destino\", definir o \"Modo\" (Mode) como \"Overwrite\" (Substituir). (RESPOSTA CORRETA)"],"answer":[3]},
+  {"q":"Você tem dados de origem em uma pasta em um computador local. Você precisa criar uma solução que usará o Fabric para popular um armazenamento de dados (data store). A solução deve atender aos seguintes requisitos: Suportar o uso de dataflows (fluxos de dados) para carregar e anexar (append) dados ao data store. Garantir que as tabelas Delta sejam otimizadas com V-Order e compactadas automaticamente. Pergunta: Quais dois tipos de data store você deve usar?","options":["A. um lakehouse (RESPOSTA CORRETA)","B. um banco de dados SQL do Azure","C. um warehouse (RESPOSTA CORRETA)","D. um banco de dados KQL"],"answer":[0,2]},
+  {"q":"Você tem um tenant (locatário) do Fabric que contém um pipeline de dados. Você precisa garantir que o pipeline seja executado a cada quatro horas às segundas-feiras e sextas-feiras. Para o que você deve definir a opção \"Repetir\" (Repeat) no agendamento?","options":["A. Diariamente (Daily)","B. Por minuto (By the minute)","C. Semanalmente (Weekly) (RESPOSTA CORRETA)","D. Por hora (Hourly)"],"answer":[2]},
+  {"q":"Você tem um tenant (locatário) do Fabric que contém um warehouse. Várias vezes ao dia, o desempenho de todas as consultas do warehouse se degrada. Você suspeita que o Fabric está aplicando throttling (limitação) à computação usada pelo warehouse. O que você deve usar para identificar se o throttling está ocorrendo?","options":["A. As configurações de Capacidade (Capacity settings)","B. O Hub de Monitoramento (Monitoring hub)","C. As exibições de gerenciamento dinâmico (DMVs)","D. O aplicativo de Métricas de Capacidade do Microsoft Fabric (the Microsoft Fabric Capacity Metrics app) (RESPOSTA CORRETA)"],"answer":[3]},
+  {"q":"Você tem um tenant (locatário) do Fabric que contém um warehouse. Um usuário descobre que um relatório que geralmente leva dois minutos para renderizar está sendo executado há 45 minutos e ainda não foi renderizado. Você precisa identificar o que está impedindo a consulta do relatório de ser concluída. Qual exibição de gerenciamento dinâmico (DMV) você deve usar?","options":["A. sys.dm_exec_requests (RESPOSTA CORRETA)","B. sys.dm_exec_sessions","C. sys.dm_exec_connections","D. sys.dm_pdw_exec_requests"],"answer":[0]},
+  {"q":"Você precisa criar um padrão de carregamento de dados para uma dimensão de alteração lenta (SCD) Tipo 1. Quais duas ações você deve incluir no processo?","options":["A. Atualizar linhas quando os atributos não-chave (non-key attributes) mudaram. (RESPOSTA CORRETA)","B. Inserir novas linhas quando a chave natural existe na tabela de dimensão, e os valores dos atributos não-chave mudaram.","C. Atualizar a data de fim de vigência (effective end date) das linhas quando os atributos não-chave mudaram.","D. Inserir novos registros quando a chave natural é um novo valor na tabela. (RESPOSTA CORRETA)"],"answer":[0,3]},
+  {"q":"Você está analisando compras de clientes em um notebook do Fabric usando PySpark. Você tem os seguintes DataFrames: transactions (10 milhões de linhas) e customers (1.000 linhas). Você precisa fazer um join minimizando shuffling. Qual código você deve executar?","options":["A. transactions.join(F.broadcast(customers), transactions.customer_id == customers.customer_id) (RESPOSTA CORRETA)","B. transactions.join(customers, transactions.customer_id == customers.customer_id).distinct()","C. transactions.join(customers, transactions.customer_id == customers.customer_id)","D. transactions.crossJoin(customers).where(transactions.customer_id == customers.customer_id)"],"answer":[0]},
+  {"q":"Você tem um tenant (locatário) do Fabric que contém um novo modelo semântico no OneLake. Você usa um notebook do Fabric para ler os dados em um Spark DataFrame. Você precisa avaliar os dados para calcular min/max/mean/stddev para todas as colunas. A solução com df.exlpain() atende?","options":["A. Sim","B. Não (RESPOSTA CORRETA)"],"answer":[1]},
+  {"q":"Mesma questão: df.show() atende?","options":["A. Sim","B. Não (RESPOSTA CORRETA)"],"answer":[1]},
+  {"q":"Mesma questão: df.summary() atende?","options":["A. Sim (RESPOSTA CORRETA)","B. Não"],"answer":[0]},
+  {"q":"Lakehouse: DESCRIBE HISTORY customer atende para verificar manutenção?","options":["A. Sim (RESPOSTA CORRETA)","B. Não "],"answer":[0]},
+  {"q":"Lakehouse: REFRESH TABLE customer atende para verificar manutenção?","options":["A. Sim","B. Não (RESPOSTA CORRETA)"],"answer":[1]},
+  {"q":"Lakehouse: EXPLAIN TABLE customer atende para verificar manutenção?","options":["A. Sim","B. Não (RESPOSTA CORRETA)"],"answer":[1]},
+  {"q":"Você tem um repositório do Azure Repos e quer salvar modelo semântico como arquivos de texto para versionamento. Qual formato?","options":["A. PBIP (RESPOSTA CORRETA)","B. PBIDS","C. PBIT","D. PBIX"],"answer":[0]},
+  {"q":"Pipeline: copiar CSV para Lakehouse com suporte a expressões M (Power Query). Qual atividade?","options":["A. Dataflow (Fluxo de dados) (RESPOSTA CORRETA)","B. Notebook","C. Script","D. Copy data (Copiar dados)"],"answer":[0]},
+  {"q":"Visual Query: Mesclar duas tabelas e retornar TODAS as linhas de ambas. Qual join?","options":["A. Inner (Interna)","B. Full outer (Externa completa) (RESPOSTA CORRETA)","C. Left outer (Externa esquerda)","D. Right anti (Anti-direita)","E. Right outer (Externa direita)","F. Left anti (Anti-esquerda)"],"answer":[1]},
+  {"q":"Lakehouse com muitos arquivos Parquet: remover arquivos não referenciados há 30 dias mantendo ACID. O que fazer?","options":["A. No explorador de arquivos do OneLake, excluir os arquivos.","B. Executar OPTIMIZE Z-order.","C. Executar OPTIMIZE V-order.","D. Executar VACUUM. (RESPOSTA CORRETA)"],"answer":[3]},
+  {"q":"Dataflow: Inner join ignorando espaços nos valores. Qual ação?","options":["A. Append (fuzzy)","B. Merge (fuzzy) (RESPOSTA CORRETA)","C. Append (lookup)","D. Merge (lookup)"],"answer":[1]},
+  {"q":"Warehouse: Copiar schema1.city para schema2.city minimizando cópia de dados (Clone).","options":["A. INSERT INTO schema2.city SELECT * FROM schema1.city;","B. SELECT * INTO schema2.city FROM schema1.city;","C. CREATE TABLE schema2.city AS CLONE OF schema1.city;","D. CREATE TABLE schema2.city AS SELECT * FROM schema1.city;"],"answer":[2]},
+  {"q":"Impedir que novas tabelas sejam adicionadas automaticamente ao modelo semântico padrão do lakehouse. O que configurar?","options":["A. as configurações do SQL analytics endpoint (RESPOSTA CORRETA)","B. as configurações do modelo semântico","C. as configurações do workspace","D. as configurações do Lakehouse1"],"answer":[0]},
+  {"q":"Pipeline ADF/Fabric: executar stored procedure e passar retorno para atividades downstream. Que atividade?","options":["A. Switch","B. Copy data","C. Append variable","D. Lookup (RESPOSTA CORRETA)"],"answer":[3]},
+  {"q":"Consultar tabelas de dois Lakehouses diferentes na mesma query SQL sem cópia. O que usar?","options":["A. Atalho (Shortcut) (RESPOSTA CORRETA)","B. Dataflow","C. View","D. Managed table"],"answer":[0]},
+  {"q":"Warehouse Star Schema SCD Tipo 2: Quais 3 colunas adicionar?","options":["A. Foreign Key","B. Natural Key","C. Data/Hora Fim Vigência (RESPOSTA CORRETA)","D. Surrogate Key (RESPOSTA CORRETA)","E. Data/Hora Início Vigência (RESPOSTA CORRETA)"],"answer":[2,3,4]},
+  {"q":"Pipeline: Atividade 2 deve rodar mesmo se Atividade 1 falhar. Qual caminho condicional?","options":["A. Upon Failure","B. Upon Completion (RESPOSTA CORRETA)","C. Upon Skip","D. Upon Success"],"answer":[1]},
+  {"q":"Identificar colunas Surrogate Key com 'Summarize By' incorreto. O que usar?","options":["A. DAX Formatter","B. Model explorer","C. Model view","D. Best Practice Analyzer (Tabular Editor) (RESPOSTA CORRETA)"],"answer":[3]},
+  {"q":"Alterar programaticamente colunas terminadas em 'Key' para várias propriedades. O que usar?","options":["A. PB Desktop","B. ALM Toolkit","C. Tabular Editor (RESPOSTA CORRETA)","D. DAX Studio"],"answer":[2]},
+  {"q":"Performance Analyzer: visual lento. 'Other' = 1047ms, DAX = 27ms. Melhor redução?","options":["A. Atualização auto página","B. Otimizar DAX","C. Alterar tipo visual","D. Reduzir número de visuais no relatório (RESPOSTA CORRETA)"],"answer":[3]},
+  {"q":"Garantir que usuários sempre usem Direct Lake (Tabular Editor XMLA). O que configurar?","options":["A. Default Mode","B. Partitions Mode","C. Storage Location","D. Direct Lake Behavior (RESPOSTA CORRETA)"],"answer":[3]},
+  {"q":"Substituir FILTER por KEEPFILTERS melhora performance quando...?","options":["A. CALCULATE aninhado","B. Referencia medida","C. Múltiplas tabelas","D. FILTER referencia coluna de tabela única (Import mode). (RESPOSTA CORRETA)"],"answer":[3]},
+  {"q":"RLS Dinâmica: Gerente RH diz que dados estão incompletos. Como validar o que ele vê?","options":["A. Test as role (dados)","B. Filtrar relatório","C. Test as role (ver relatório como usuário específico) (RESPOSTA CORRETA)","D. Pedir para abrir no Desktop"],"answer":[2]},
+  {"q":"1 bilhão de JSONs no OneLake: transformar e visualizar minimizando duplicação e tempo de carga. O que usar?","options":["A. PySpark em notebook (RESPOSTA CORRETA)","B. Pandas em notebook","C. Power BI"],"answer":[0]},
+  {"q":"Análise de churn: gráficos comparando retidos vs perdidos por geografia/idade/tempo. Que tipo de análise?","options":["A. Diagnóstica","B. Descritiva (RESPOSTA CORRETA)","C. Prescritiva","D. Preditiva"],"answer":[1]},
+  {"q":"Dataflow: identificar min/max nos resultados. Quais 3 opções 'Exibir'?","options":["A. Distribuição valores","B. Perfil de coluna (RESPOSTA CORRETA)","C. Perfil no painel detalhes (RESPOSTA CORRETA)","D. Qualidade coluna","E. Painel de detalhes (RESPOSTA CORRETA)"],"answer":[1,2,4]},
+  {"q":"Power Query: Exibir estatísticas (Count, Avg, Null, Distinct, StdDev). Qual função?","options":["A. Table.schema","B. Table.view","C. Table.FuzzyGroup","D. Table.Profile (RESPOSTA CORRETA)"],"answer":[3]},
+  {"q":"Verificar manutenção tabela Delta. DESCRIBE DETAIL customer atende?","options":["A. Sim","B. Não (RESPOSTA CORRETA)"],"answer":[1]},
+  {"q":"PySpark stats: df.explain().show() atende?","options":["A. Sim","B. Não (RESPOSTA CORRETA)"],"answer":[1]},
+  {"q":"Otimizar DAX lento (ISEMPTY): ISEMPTY ( RELATEDTABLE ('Order Item') ) atende?","options":["A. Sim","B. Não (RESPOSTA CORRETA)"],"answer":[1]},
+  {"q":"Otimizar DAX lento (ISEMPTY): NOT (ISEMPTY (CALCULATETABLE ('Order Item'))) atende?","options":["A. Sim (RESPOSTA CORRETA)","B. Não"],"answer":[0]},
+  {"q":"Otimizar DAX lento (ISEMPTY): CALCULATE (COUNTROWS ('Order Item')) > 0 atende?","options":["A. Sim","B. Não (RESPOSTA CORRETA)"],"answer":[1]},
+  {"q":"Novas tabelas Lakehouse adicionadas auto ao modelo padrão. O que fazer?","options":["A. Disable Query Caching","B. Configurar LH: 'Sync the default Power BI semantic model' (RESPOSTA CORRETA)","C. Enable Refresh","D. Make discoverable"],"answer":[1]},
+  {"q":"App Service acessando XMLA com Service Account. O que fazer primeiro?","options":["A. Managed ID no workspace","B. Config XMLA","C. Upgrade Premium","D. Adicionar Managed Identity ao App1 (RESPOSTA CORRETA)"],"answer":[3]},
+  {"q":"T-SQL para carregar SCD Tipo 2 grande minimizando recursos. Qual instrução?","options":["A. UPDATE E INSERT (RESPOSTA CORRETA)","B. MERGE","C. TRUNCATE e INSERT","D. CREATE AS SELECT"],"answer":[0]},
+  {"q":"RLS Dinâmica: USERNAME() retorna branco. USEROBJECTID() resolve?","options":["A. Sim","B. Não (RESPOSTA CORRETA)"],"answer":[1]},
+  {"q":"RLS Dinâmica: USERPRINCIPALNAME() resolve?","options":["A. Sim (RESPOSTA CORRETA)","B. Não"],"answer":[0]},
+  {"q":"PySpark stats: df.describe().show() atende?","options":["A. Sim (RESPOSTA CORRETA)","B. Não"],"answer":[0]}
 ];
+// ===== end data =====
 
-    let currentQuestion = 0;
-    let score = 0;
+let current = 0;
+let selections = {};
+let score = 0;
+let answered = {};
 
-    const container = document.getElementById('quiz-container');
-    const progress = document.getElementById('progress');
+const qArea = document.getElementById('question-area');
+const progress = document.getElementById('progress');
+const btnPrev = document.getElementById('btn-prev');
+const btnNext = document.getElementById('btn-next');
+const btnCheck = document.getElementById('btn-check');
+const resultBox = document.getElementById('result-box');
 
-    function loadQuiz() {
-        quizData.forEach((data, index) => {
-            const card = document.createElement('div');
-            card.classList.add('question-card');
-            if (index === 0) card.classList.add('active');
-            card.id = `q-${index}`;
+function renderQuestion(i){
+  const data = quizData[i];
+  qArea.innerHTML = `
+    <div class="question-text"><strong>${i+1}.</strong> ${escapeHtml(data.q)}</div>
+    <ul class="options" id="opts-${i}">
+      ${data.options.map((o, idx)=>`<li class="option" data-idx="${idx}" onclick="toggleOption(${i},${idx},this)">${escapeHtml(o)}</li>`).join('')}
+    </ul>
+  `;
+  const sel = selections[i] || [];
+  sel.forEach(idx=>{
+    const el = document.querySelector('#opts-'+i+' .option[data-idx="'+idx+'"]');
+    if(el) el.classList.add('selected');
+  });
+  progress.innerText = `Questão ${i+1} de ${quizData.length}`;
+  btnPrev.style.display = i===0 ? 'none' : 'inline-block';
+  btnNext.style.display = 'none';
+  btnCheck.style.display = 'inline-block';
+  resultBox.style.display = 'none';
+}
 
-            const html = `
-                <div class="question-text">${index + 1}. ${data.q}</div>
-                <ul class="options">
-                    ${data.options.map((opt, i) => `
-                        <li class="option" onclick="selectOption(${index}, ${i}, this)">${opt}</li>
-                    `).join('')}
-                </ul>
-                <div class="result-box" id="result-${index}"></div>
-                <div class="btn-container">
-                    <button class="btn-check" onclick="checkAnswer(${index})" id="btn-check-${index}">Verificar Resposta</button>
-                    <button class="btn-next" onclick="nextQuestion(${index})" id="btn-next-${index}">Próxima</button>
-                </div>
-            `;
-            card.innerHTML = html;
-            container.appendChild(card);
-        });
-    }
+function toggleOption(qIdx, oIdx, el){
+  el.classList.toggle('selected');
+  selections[qIdx] = selections[qIdx] || [];
+  if(selections[qIdx].includes(oIdx)){
+    selections[qIdx] = selections[qIdx].filter(x=>x!==oIdx);
+  } else {
+    selections[qIdx].push(oIdx);
+  }
+}
+window.toggleOption = toggleOption;
 
-    let selectedOptions = [];
+btnCheck.addEventListener('click', ()=>{
+  const data = quizData[current];
+  const sel = (selections[current] || []).slice().sort((a,b)=>a-b);
+  if(sel.length===0){ alert('Selecione uma ou mais opções antes de verificar.'); return; }
+  const correct = (data.answer || []).slice().sort((a,b)=>a-b);
+  const isCorrect = JSON.stringify(sel) === JSON.stringify(correct);
+  const optsEls = document.querySelectorAll('#opts-'+current+' .option');
+  optsEls.forEach((el, idx)=>{
+    el.classList.remove('correct','wrong');
+    if(correct.includes(idx)) el.classList.add('correct');
+    if(sel.includes(idx) && !correct.includes(idx)) el.classList.add('wrong');
+  });
+  answered[current] = {selected: sel, correct: correct, ok: isCorrect};
+  if(isCorrect) score++;
+  resultBox.style.display = 'block';
+  resultBox.innerHTML = isCorrect ? '<strong>Correto!</strong>' : '<strong>Incorreto.</strong> As respostas corretas estão marcadas.';
+  btnCheck.style.display = 'none';
+  btnNext.style.display = 'inline-block';
+});
 
-    window.selectOption = function(qIndex, oIndex, element) {
-        // Alternar seleção para permitir múltiplas escolhas se necessário, 
-        // mas para simplicidade visual deste simulado, vamos limpar anteriores se for clique simples
-        // Como algumas questões pedem 2 ou 3, vamos permitir toggle.
-        
-        if (element.classList.contains('selected')) {
-            element.classList.remove('selected');
-            selectedOptions = selectedOptions.filter(i => i !== oIndex);
-        } else {
-            element.classList.add('selected');
-            selectedOptions.push(oIndex);
-        }
-    };
+btnNext.addEventListener('click', ()=>{
+  if(current < quizData.length - 1){
+    current++;
+    renderQuestion(current);
+  } else {
+    showFinal();
+  }
+});
 
-    window.checkAnswer = function(index) {
-        const data = quizData[index];
-        const resultBox = document.getElementById(`result-${index}`);
-        const optionsElements = document.querySelectorAll(`#q-${index} .option`);
-        const btnCheck = document.getElementById(`btn-check-${index}`);
-        const btnNext = document.getElementById(`btn-next-${index}`);
+btnPrev.addEventListener('click', ()=>{
+  if(current > 0){
+    current--;
+    renderQuestion(current);
+  }
+});
 
-        if (selectedOptions.length === 0) {
-            alert("Por favor, selecione uma resposta.");
-            return;
-        }
+function showFinal(){
+  let wrongs = Object.keys(answered).filter(k=>!answered[k].ok).map(k=>parseInt(k));
+  for(let i=0;i<quizData.length;i++){
+    if(!(i in answered)) wrongs.push(i);
+  }
+  wrongs = Array.from(new Set(wrongs)).sort((a,b)=>a-b);
+  const total = quizData.length;
+  const correctCount = score;
+  let html = `<div class="final-card"><h2>Simulado Finalizado</h2><p>Você acertou <strong>${correctCount}</strong> de <strong>${total}</strong>.</p></div>`;
+  if(wrongs.length>0){
+    html += `<div class="err-list"><h3>Questões com erro ou não respondidas (${wrongs.length})</h3>`;
+    wrongs.forEach(idx=>{
+      const d = quizData[idx];
+      const a = answered[idx] || {selected:[], correct:d.answer||[]};
+      html += `<div style="margin-bottom:12px;padding:10px;border-radius:8px;background:#fff;border:1px solid #eee"><strong>Questão ${idx+1}</strong><div style="margin-top:6px">${escapeHtml(d.q)}</div><div style="margin-top:8px"><em>Sua resposta:</em> ${formatOptions(d.options,a.selected)}</div><div style="margin-top:4px"><em>Resposta correta:</em> ${formatOptions(d.options,a.correct)}</div></div>`;
+    });
+    html += `</div>`;
+  } else {
+    html += `<p>Parabéns! Todas as questões foram respondidas corretamente.</p>`;
+  }
+  qArea.innerHTML = html;
+  progress.innerText = 'Concluído';
+  document.querySelector('.controls').style.display = 'none';
+  resultBox.style.display = 'none';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
 
-        // Verificar
-        let isCorrect = true;
-        // Simples verificação: Se arrays de indices batem (ordenados)
-        const sortedSelected = selectedOptions.sort().toString();
-        const sortedAnswer = data.answer.sort().toString();
-        
-        if (sortedSelected !== sortedAnswer) isCorrect = false;
+function formatOptions(options, indices){
+  if(!indices || indices.length===0) return '<span class="small">(Nenhuma)</span>';
+  return indices.map(i=>`<strong>${options[i]}</strong>`).join(', ');
+}
 
-        // Visual feedback
-        optionsElements.forEach((opt, i) => {
-            if (data.answer.includes(i)) {
-                opt.classList.add('correct'); // Mostra a correta verde
-            } else if (selectedOptions.includes(i) && !data.answer.includes(i)) {
-                opt.classList.add('wrong'); // Mostra a errada vermelho
-            }
-        });
+function escapeHtml(s){ return String(s).replace(/[&<>"']/g, function(m){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]; }); }
 
-        if (isCorrect) {
-            resultBox.style.display = 'block';
-            resultBox.style.backgroundColor = '#d4edda';
-            resultBox.style.color = '#155724';
-            resultBox.innerText = "Correto!";
-            score++;
-        } else {
-            resultBox.style.display = 'block';
-            resultBox.style.backgroundColor = '#f8d7da';
-            resultBox.style.color = '#721c24';
-            resultBox.innerText = "Incorreto. Veja as respostas em verde.";
-        }
-
-        btnCheck.style.display = 'none';
-        btnNext.style.display = 'block';
-    };
-
-    window.nextQuestion = function(index) {
-        selectedOptions = []; // Reset selection
-        const currentCard = document.getElementById(`q-${index}`);
-        const nextCard = document.getElementById(`q-${index + 1}`);
-
-        currentCard.classList.remove('active');
-        
-        if (nextCard) {
-            nextCard.classList.add('active');
-            progress.innerText = `Questão ${index + 2} de ${quizData.length}`;
-        } else {
-            container.innerHTML = `<div style="text-align:center"><h2>Simulado Finalizado!</h2><p>Você acertou ${score} de ${quizData.length}.</p><button class="btn-check" onclick="location.reload()">Reiniciar</button></div>`;
-            progress.innerText = "Concluído";
-        }
-    };
-
-    loadQuiz();
+renderQuestion(0);
 </script>
-
 </body>
 </html>
