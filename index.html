@@ -137,10 +137,17 @@ const quizData = [
 ","options":["A. Adicionar uma identidade gerenciada (managed identity) ao workspace. ","B. Modificar a configuração do Endpoint XMLA. ","C. Fazer o upgrade do workspace para a capacidade Premium. ","D. Adicionar uma identidade gerenciada (managed identity) ao App1. "],"answer":[3]},
   {"q":"Você tem um tenant (locatário) do Fabric que contém um data warehouse. Você precisa carregar linhas em uma dimensão de alteração lenta (SCD) Tipo 2 grande. A solução deve minimizar o uso de recursos. Pergunta: Qual instrução T-SQL você deve usar?
 ","options":["A. UPDATE E INSERT ","B. MERGE","C. TRUNCATE e INSERT","D. CREATE AS SELECT"],"answer":[0]},
-  {"q":"Cenário: Sua rede contém um domínio on-premises do Active Directory Domain Services (AD DS) chamado contoso.com que sincroniza com um tenant (locatário) do Microsoft Entra usando o Microsoft Entra Connect. Você tem um tenant do Fabric que contém um modelo semântico.  Você habilita a segurança em nível de linha (RLS) dinâmica para o modelo e o implanta no serviço do Fabric.  Você consulta uma medida que inclui a função USERNAME(), e a consulta retorna um resultado em branco. Você precisa garantir que a medida retorne o nome principal do usuário (UPN) de um usuário. Solução: Você atualiza a medida para usar a função USEROBJECTID(). Isso atende ao objetivo?
-","options":["A. Sim","B. Não "],"answer":[1]},
-  {"q":"Cenário: Sua rede contém um domínio on-premises do Active Directory Domain Services (AD DS) chamado contoso.com que sincroniza com um tenant (locatário) do Microsoft Entra usando o Microsoft Entra Connect. Você tem um tenant do Fabric que contém um modelo semântico.  Você habilita a segurança em nível de linha (RLS) dinâmica para o modelo e o implanta no serviço do Fabric.  Você consulta uma medida que inclui a função USERNAME(), e a consulta retorna um resultado em branco. Você precisa garantir que a medida retorne o nome principal do usuário (UPN) de um usuário. Solução: Você atualiza a medida para usar a função USERPRINCIPALNAME(). Isso atende ao objetivo?
-  {"q":"","options":["A. Sim ","B. Não"],"answer":[0]}
+  {
+  "q":"Cenário: Sua rede contém um domínio on-premises do Active Directory Domain Services (AD DS) chamado contoso.com que sincroniza com um tenant (locatário) do Microsoft Entra usando o Microsoft Entra Connect. Você tem um tenant do Fabric que contém um modelo semântico.  Você habilita a segurança em nível de linha (RLS) dinâmica para o modelo e o implanta no serviço do Fabric.  Você consulta uma medida que inclui a função USERNAME(), e a consulta retorna um resultado em branco. Você precisa garantir que a medida retorne o nome principal do usuário (UPN) de um usuário. Solução: Você atualiza a medida para usar a função USEROBJECTID(). Isso atende ao objetivo?",
+  "options":["A. Sim","B. Não"],
+  "answer":[1]
+},
+{
+  "q":"Cenário: Sua rede contém um domínio on-premises do Active Directory Domain Services (AD DS) chamado contoso.com que sincroniza com um tenant (locatário) do Microsoft Entra usando o Microsoft Entra Connect. Você tem um tenant do Fabric que contém um modelo semântico.  Você habilita a segurança em nível de linha (RLS) dinâmica para o modelo e o implanta no serviço do Fabric.  Você consulta uma medida que inclui a função USERNAME(), e a consulta retorna um resultado em branco. Você precisa garantir que a medida retorne o nome principal do usuário (UPN) de um usuário. Solução: Você atualiza a medida para usar a função USERPRINCIPALNAME(). Isso atende ao objetivo?",
+  "options":["A. Sim","B. Não"],
+  "answer":[0]
+}
+
 ];
 // ===== end data =====
 
