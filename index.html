@@ -4,49 +4,213 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Simulado DP-600 — Léo Vianna</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
 <style>
-  body { font-family: sans-serif; max-width: 800px; margin: 20px auto; padding: 0 20px; background-color: #f4f4f9; }
-  h1 { color: #333; }
-  .controls { margin-top: 20px; padding: 10px 0; border-top: 1px solid #ccc; }
-  button { padding: 10px 20px; font-size: 16px; cursor: pointer; background-color: #0078d4; color: white; border: none; border-radius: 4px; margin-right: 10px; }
-  button:hover { background-color: #005a9e; }
-  button:disabled { background-color: #ccc; cursor: not-allowed; }
-  #question-area { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px; }
-  .option { display: block; padding: 10px; margin: 8px 0; border: 1px solid #ddd; border-radius: 4px; cursor: pointer; transition: background 0.2s; }
-  .option:hover { background-color: #f0f0f0; }
-  .option.selected { background-color: #e1f0ff; border-color: #0078d4; font-weight: bold; }
+  /* --- Reset e Estilos Globais --- */
+  * { box-sizing: border-box; }
+  body {
+    font-family: 'Roboto', sans-serif; /* Fonte moderna */
+    background-color: #f0f2f5; /* Fundo cinza claro suave */
+    color: #333;
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+  }
+
+  /* --- Container Principal (O "Cartão" do Quiz) --- */
+  .quiz-container {
+    background-color: #fff;
+    border-radius: 12px; /* Cantos arredondados */
+    box-shadow: 0 10px 25px rgba(0,0,0,0.08); /* Sombra suave para profundidade */
+    width: 100%;
+    max-width: 850px; /* Largura máxima um pouco maior */
+    padding: 30px;
+    overflow: hidden; /* Para conter elementos internos */
+  }
+
+  /* --- Cabeçalho e Progresso --- */
+  h1 {
+    color: #1a1a1a;
+    font-weight: 700;
+    margin-top: 0;
+    font-size: 1.8rem;
+    text-align: center;
+    margin-bottom: 25px;
+  }
+
+  #progress {
+    font-weight: 500;
+    color: #666;
+    margin-bottom: 20px;
+    text-align: right;
+    font-size: 0.9rem;
+  }
+
+  /* --- Área da Questão --- */
+  #question-area h3 {
+    font-size: 1.3rem;
+    color: #444;
+    margin-bottom: 15px;
+  }
+
+  #question-area p {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    margin-bottom: 25px;
+    color: #2c3e50;
+  }
+
+  /* --- Opções de Resposta (Estilo Moderno) --- */
+  .option {
+    display: flex;
+    align-items: center;
+    padding: 15px 20px;
+    margin: 10px 0;
+    border: 2px solid #e0e0e0; /* Borda cinza inicial */
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease; /* Transição suave para interações */
+    font-size: 1.05rem;
+    background-color: #fff;
+  }
+
+  .option:hover:not(.correct):not(.wrong) {
+    background-color: #f5f9ff; /* Azul bem claro ao passar o mouse */
+    border-color: #a0c4ff;
+  }
+
+  .option.selected {
+    background-color: #e3f2fd; /* Fundo azul claro quando selecionado */
+    border-color: #2196f3; /* Borda azul forte */
+    font-weight: 500;
+    color: #0d47a1;
+    box-shadow: 0 2px 5px rgba(33, 150, 243, 0.2);
+  }
   
-  /* Estilos para feedback de resposta */
-  .option.correct { background-color: #dff6dd; border-color: #107c10; color: #107c10; }
-  .option.wrong { background-color: #fde7e9; border-color: #a80000; color: #a80000; }
-  
-  #result-box { margin-top: 15px; padding: 15px; border-radius: 4px; font-weight: bold; display: none; }
-  #progress { font-weight: bold; color: #666; margin-bottom: 10px; }
-  #error-msg { color: red; font-weight: bold; display: none; background: #ffe6e6; padding: 10px; border: 1px solid red; }
-  
+  /* --- Feedback de Resposta (Certo/Errado) --- */
+  .option.correct {
+    background-color: #e8f5e9; /* Verde claro */
+    border-color: #4caf50;
+    color: #2e7d32;
+    position: relative;
+  }
+  /* Adiciona um ícone de checkzinho */
+  .option.correct::after {
+      content: '✓';
+      position: absolute;
+      right: 20px;
+      font-weight: bold;
+      color: #4caf50;
+  }
+
+  .option.wrong {
+    background-color: #ffebee; /* Vermelho claro */
+    border-color: #ef5350;
+    color: #c62828;
+    position: relative;
+    opacity: 0.9;
+  }
+    /* Adiciona um ícone de X */
+  .option.wrong::after {
+      content: '✗';
+      position: absolute;
+      right: 20px;
+      font-weight: bold;
+      color: #ef5350;
+  }
+
+  /* --- Caixa de Resultado e Erros --- */
+  #result-box {
+    margin-top: 20px;
+    padding: 15px;
+    border-radius: 8px;
+    font-weight: 500;
+    text-align: center;
+    display: none;
+    font-size: 1.1rem;
+  }
+  .result-correct { background-color: #e8f5e9; color: #2e7d32; border: 1px solid #c8e6c9; }
+  .result-wrong { background-color: #ffebee; color: #c62828; border: 1px solid #ffcdd2; }
+
+  #error-msg { color: #721c24; background-color: #f8d7da; border-color: #f5c6cb; padding: 15px; border-radius: 8px; margin-bottom: 20px; display: none; }
+
+  /* --- Controles (Botões) --- */
+  .controls {
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+    display: flex;
+    justify-content: space-between; /* Espalha os botões */
+    gap: 10px;
+  }
+
+  button {
+    padding: 12px 24px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    border: none;
+    border-radius: 6px;
+    transition: background-color 0.2s, transform 0.1s;
+    font-family: 'Roboto', sans-serif;
+  }
+
+  button:active { transform: scale(0.98); } /* Efeito de clique */
+
+  /* Botão Principal (Verificar) */
+  #btn-check {
+    background-color: #2196f3; /* Azul material design */
+    color: white;
+    flex-grow: 2; /* Ocupa mais espaço se possível */
+    font-weight: 700;
+  }
+  #btn-check:hover { background-color: #1976d2; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+
+  /* Botões Secundários (Navegação) */
+  #btn-prev, #btn-next {
+    background-color: #e0e0e0;
+    color: #555;
+  }
+  #btn-prev:hover, #btn-next:hover { background-color: #d0d0d0; color: #333; }
+
   /* Esconder botões inicialmente */
   #btn-prev, #btn-next, #btn-check { display: none; }
+
+  /* --- Estilos da Página Final --- */
+  .final-report-card {
+      background: #fafafa;
+      border: 1px solid #eee;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 15px;
+  }
+  .final-label { font-weight: 500; display: block; margin-top: 5px; font-size: 0.9rem; }
 </style>
 </head>
 <body>
 
-<h1>Simulado DP-600 — Léo Vianna</h1>
-<div id="error-msg"></div>
-<div id="progress">Carregando...</div>
+<div class="quiz-container">
+    <h1>Simulado DP-600 — Léo Vianna</h1>
+    <div id="error-msg"></div>
+    <div id="progress">Carregando...</div>
 
-<div id="question-area">
-  </div>
+    <div id="question-area">
+      </div>
 
-<div id="result-box"></div>
+    <div id="result-box"></div>
 
-<div class="controls">
-  <button id="btn-prev">Anterior</button>
-  <button id="btn-check">Verificar Resposta</button>
-  <button id="btn-next">Próxima</button>
+    <div class="controls">
+      <button id="btn-prev">← Anterior</button>
+      <button id="btn-check">Verificar Resposta</button>
+      <button id="btn-next">Próxima →</button>
+    </div>
 </div>
 
 <script>
-// ===== 1. DADOS DO QUIZ (Corrigidos) =====
+// ===== 1. DADOS DO QUIZ (O mesmo conteúdo, não mudei nada aqui) =====
 const quizData = [
   {"q":"Você tem um tenant (locatário) do Fabric que contém um modelo de machine learning registrado em um workspace do Fabric. Você precisa usar o modelo para gerar previsões usando a função PREDICT em um notebook do Fabric. Quais duas linguagens você pode usar para realizar a pontuação (scoring) do modelo? Cada resposta correta apresenta uma solução completa. NOTA: Cada resposta correta vale um ponto.","options":["A. T-SQL","B. DAX","C. Spark SQL ","D. PySpark "],"answer":[2,3]},
   {"q":"Você tem um tenant (locatário) do Fabric que contém um warehouse. Você usa um dataflow (fluxo de dados) para carregar um novo conjunto de dados do OneLake para o warehouse. Você precisa adicionar uma etapa do Power Query para identificar os valores máximos das colunas numéricas. Qual função você deve incluir na etapa?","options":["A. Table.MaxN","B. Table.Max","C. Table.Range","D. Table.Profile "],"answer":[3]},
@@ -114,7 +278,7 @@ const quizData = [
   {"q":"Cenário: Sua rede contém um domínio on-premises do Active Directory Domain Services (AD DS) chamado contoso.com que sincroniza com um tenant (locatário) do Microsoft Entra usando o Microsoft Entra Connect. Você tem um tenant do Fabric que contém um modelo semântico.  Você habilita a segurança em nível de linha (RLS) dinâmica para o modelo e o implanta no serviço do Fabric.  Você consulta uma medida que inclui a função USERNAME(), e a consulta retorna um resultado em branco. Você precisa garantir que a medida retorne o nome principal do usuário (UPN) de um usuário. Solução: Você atualiza a medida para usar a função USERPRINCIPALNAME(). Isso atende ao objetivo?","options":["A. Sim ","B. Não"],"answer":[0]}
 ];
 
-// ===== 2. LÓGICA DO SIMULADO (Corrigida) =====
+// ===== 2. LÓGICA DO SIMULADO (Com pequenas melhorias visuais no resultado final) =====
 
 document.addEventListener('DOMContentLoaded', () => {
     try {
@@ -137,7 +301,7 @@ function showFatalError(msg) {
 let current = 0;
 let selections = {};
 let score = 0;
-let answered = {}; // para rastrear correções
+let answered = {};
 
 const qArea = document.getElementById('question-area');
 const progress = document.getElementById('progress');
@@ -157,7 +321,7 @@ function renderQuestion(i){
     const data = quizData[i];
     if(!data) return;
 
-    // Gera o HTML das opções
+    // Gera o HTML das opções com a nova classe CSS
     const optionsHtml = data.options.map((o, idx) => `
         <div class="option" data-idx="${idx}" onclick="toggleOption(${i}, ${idx}, this)">
             ${escapeHtml(o)}
@@ -172,22 +336,19 @@ function renderQuestion(i){
         </div>
     `;
 
-    // Re-aplica seleções anteriores se houver
     const sel = selections[i] || [];
     sel.forEach(idx => {
         const el = document.querySelector(`#opts-${i} .option[data-idx="${idx}"]`);
         if(el) el.classList.add('selected');
     });
 
-    // Atualiza progresso e botões
     progress.innerText = `Questão ${i+1} de ${quizData.length}`;
     btnPrev.style.display = i === 0 ? 'none' : 'inline-block';
     
-    // Se já respondeu e verificou essa questão, mostra o resultado estático
     if (answered[i]) {
          btnNext.style.display = 'inline-block';
          btnCheck.style.display = 'none';
-         showFeedback(i); // Re-aplica cores
+         showFeedback(i);
     } else {
          btnNext.style.display = 'none';
          btnCheck.style.display = 'inline-block';
@@ -195,9 +356,7 @@ function renderQuestion(i){
     }
 }
 
-// Função global para o onclick
 window.toggleOption = function(qIdx, oIdx, el){
-    // Se já foi respondida/verificada, bloqueia alteração
     if(answered[qIdx]) return;
 
     el.classList.toggle('selected');
@@ -222,7 +381,6 @@ function onCheck(){
     const correct = (data.answer || []).slice().sort((a,b)=>a-b);
     const isCorrect = JSON.stringify(sel) === JSON.stringify(correct);
 
-    // Salva o estado da resposta
     answered[current] = {
         selected: sel,
         correct: correct,
@@ -234,9 +392,11 @@ function onCheck(){
     showFeedback(current);
 
     resultBox.style.display = 'block';
+    // Aplica classes CSS para o feedback na caixa de resultado
+    resultBox.className = isCorrect ? 'result-correct' : 'result-wrong';
     resultBox.innerHTML = isCorrect ? 
-        '<span style="color:green">Correto!</span>' : 
-        '<span style="color:red">Incorreto. Veja as respostas corretas acima.</span>';
+        'Correto!' : 
+        'Incorreto. Veja as respostas corretas marcadas acima.';
     
     btnCheck.style.display = 'none';
     btnNext.style.display = 'inline-block';
@@ -250,11 +410,9 @@ function showFeedback(qIdx) {
     optsEls.forEach((el, idx) => {
         el.classList.remove('correct', 'wrong', 'selected');
         
-        // Marca visualmente as corretas
         if(state.correct.includes(idx)) {
             el.classList.add('correct');
         }
-        // Marca as erradas que o usuário selecionou
         if(state.selected.includes(idx) && !state.correct.includes(idx)) {
             el.classList.add('wrong');
         }
@@ -278,37 +436,45 @@ function onPrev(){
 }
 
 function showFinal(){
-    // CORREÇÃO DO LOOP AQUI
     let wrongs = [];
     for(let i = 0; i < quizData.length; i++){
-        // Se não respondeu ou errou
         if(!answered[i] || !answered[i].ok) {
             wrongs.push(i);
         }
     }
     
     const total = quizData.length;
+    const percentage = Math.round((score / total) * 100);
+
     let html = `<h2>Simulado Finalizado</h2>
-                <p>Você acertou <strong>${score}</strong> de <strong>${total}</strong>.</p>`;
+                <div style="text-align: center; margin-bottom: 30px;">
+                    <p style="font-size: 1.2rem;">Você acertou <strong>${score}</strong> de <strong>${total}</strong> questões.</p>
+                    <p style="font-size: 1.5rem; font-weight: bold; color: #2196f3;">Nota: ${percentage}%</p>
+                </div>`;
     
     if(wrongs.length > 0){
-        html += `<h3>Questões com erro ou não respondidas:</h3>`;
+        html += `<h3>Revisão das questões com erro ou não respondidas:</h3>`;
         wrongs.forEach(idx => {
             const d = quizData[idx];
             const a = answered[idx] || {selected:[], correct:d.answer||[]};
             
-            html += `<div style="margin-bottom:20px; border-bottom:1px solid #ccc; padding-bottom:10px;">
-                <strong>Questão ${idx+1}:</strong> ${escapeHtml(d.q)}<br/>
-                <span style="color:red">Sua resposta: ${formatOptions(d.options, a.selected)}</span><br/>
-                <span style="color:green">Resposta correta: ${formatOptions(d.options, a.correct)}</span>
+            // Usando o novo estilo de card para o relatório final
+            html += `<div class="final-report-card">
+                <strong>Questão ${idx+1}:</strong> <br/> ${escapeHtml(d.q)}
+                <div style="margin-top: 15px;">
+                    <span class="final-label" style="color:#c62828">Sua resposta:</span> ${formatOptions(d.options, a.selected)}
+                    <span class="final-label" style="color:#2e7d32; margin-top: 10px;">Resposta correta:</span> ${formatOptions(d.options, a.correct)}
+                </div>
             </div>`;
         });
     } else {
-        html += `<h3 style="color:green">Parabéns! Gabaritou o simulado!</h3>`;
+        html += `<div style="text-align: center; padding: 30px; background: #e8f5e9; border-radius: 8px; color: #2e7d32;">
+                    <h3>Parabéns! Você gabaritou o simulado!</h3>
+                 </div>`;
     }
 
     qArea.innerHTML = html;
-    progress.innerText = 'Concluído';
+    progress.style.display = 'none'; // Esconde o "Questão X de Y"
     document.querySelector('.controls').style.display = 'none';
     resultBox.style.display = 'none';
     window.scrollTo({top:0, behavior:'smooth'});
@@ -319,7 +485,6 @@ function formatOptions(options, indices){
     return indices.map(i => options[i]).join(', ');
 }
 
-// CORREÇÃO DA FUNÇÃO ESCAPE
 function escapeHtml(text) {
   if (!text) return text;
   return text
@@ -329,7 +494,6 @@ function escapeHtml(text) {
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#039;");
 }
-
 </script>
 </body>
 </html>
