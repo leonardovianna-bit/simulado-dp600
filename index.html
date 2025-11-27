@@ -32,6 +32,7 @@ button{padding:10px 16px;border-radius:8px;border:0;cursor:pointer;font-size:1re
 .final-card{text-align:center;padding:20px}
 .err-list{text-align:left;margin-top:12px}
 .small{font-size:0.9rem;color:var(--muted)}
+.warn{color:#b45309;background:#fffbeb;padding:10px;border-radius:8px;margin-top:10px;border:1px solid #fcd34d}
 @media(max-width:640px){.wrap{padding:12px}}
 </style>
 </head>
@@ -45,7 +46,7 @@ button{padding:10px 16px;border-radius:8px;border:0;cursor:pointer;font-size:1re
   </header>
 
   <div id="quiz" >
-    <div class="progress" id="progress">Questão 1 de 65</div>
+    <div class="progress" id="progress">Questão 1 de ?</div>
     <div id="question-area"></div>
     <div class="controls">
       <button id="btn-prev" class="btn-ghost">Anterior</button>
@@ -54,6 +55,7 @@ button{padding:10px 16px;border-radius:8px;border:0;cursor:pointer;font-size:1re
       <button id="btn-next" class="btn-primary" style="display:none;margin-left:8px">Próxima</button>
     </div>
     <div id="result-box" class="summary" style="display:none"></div>
+    <div id="error-msg" class="warn" style="display:none"></div>
   </div>
 </div>
 
@@ -128,6 +130,26 @@ const quizData = [
 ];
 // ===== end data =====
 
+document.addEventListener('DOMContentLoaded', () => {
+  try {
+    if(!Array.isArray(quizData) || quizData.length === 0) {
+      showFatalError('Dados do quiz (quizData) não encontrados ou estão vazios. Verifique se o array de questões está presente no arquivo.');
+      console.error('quizData inválido:', quizData);
+      return;
+    }
+    initQuiz();
+  } catch(err) {
+    showFatalError('Erro ao inicializar o simulado. Abra o Console do navegador (F12) e veja o erro.');
+    console.error('Erro init:', err);
+  }
+});
+
+function showFatalError(msg) {
+  const em = document.getElementById('error-msg');
+  em.style.display = 'block';
+  em.innerText = msg;
+}
+
 let current = 0;
 let selections = {};
 let score = 0;
@@ -140,8 +162,21 @@ const btnNext = document.getElementById('btn-next');
 const btnCheck = document.getElementById('btn-check');
 const resultBox = document.getElementById('result-box');
 
+function initQuiz() {
+  // attach events
+  btnCheck.addEventListener('click', onCheck);
+  btnNext.addEventListener('click', onNext);
+  btnPrev.addEventListener('click', onPrev);
+  // render first
+  renderQuestion(0);
+}
+
 function renderQuestion(i){
   const data = quizData[i];
+  if(!data) {
+    qArea.innerHTML = '<div class="warn">Questão não encontrada.</div>';
+    return;
+  }
   qArea.innerHTML = `
     <div class="question-text"><strong>${i+1}.</strong> ${escapeHtml(data.q)}</div>
     <ul class="options" id="opts-${i}">
@@ -161,51 +196,68 @@ function renderQuestion(i){
 }
 
 function toggleOption(qIdx, oIdx, el){
-  el.classList.toggle('selected');
-  selections[qIdx] = selections[qIdx] || [];
-  if(selections[qIdx].includes(oIdx)){
-    selections[qIdx] = selections[qIdx].filter(x=>x!==oIdx);
-  } else {
-    selections[qIdx].push(oIdx);
+  try {
+    el.classList.toggle('selected');
+    selections[qIdx] = selections[qIdx] || [];
+    if (selections[qIdx].includes(oIdx)){
+      selections[qIdx] = selections[qIdx].filter(x=>x!==oIdx);
+    } else {
+      selections[qIdx].push(oIdx);
+    }
+  } catch(err) {
+    console.error('toggleOption error', err);
   }
 }
 window.toggleOption = toggleOption;
 
-btnCheck.addEventListener('click', ()=>{
-  const data = quizData[current];
-  const sel = (selections[current] || []).slice().sort((a,b)=>a-b);
-  if(sel.length===0){ alert('Selecione uma ou mais opções antes de verificar.'); return; }
-  const correct = (data.answer || []).slice().sort((a,b)=>a-b);
-  const isCorrect = JSON.stringify(sel) === JSON.stringify(correct);
-  const optsEls = document.querySelectorAll('#opts-'+current+' .option');
-  optsEls.forEach((el, idx)=>{
-    el.classList.remove('correct','wrong');
-    if(correct.includes(idx)) el.classList.add('correct');
-    if(sel.includes(idx) && !correct.includes(idx)) el.classList.add('wrong');
-  });
-  answered[current] = {selected: sel, correct: correct, ok: isCorrect};
-  if(isCorrect) score++;
-  resultBox.style.display = 'block';
-  resultBox.innerHTML = isCorrect ? '<strong>Correto!</strong>' : '<strong>Incorreto.</strong> As respostas corretas estão marcadas.';
-  btnCheck.style.display = 'none';
-  btnNext.style.display = 'inline-block';
-});
-
-btnNext.addEventListener('click', ()=>{
-  if(current < quizData.length - 1){
-    current++;
-    renderQuestion(current);
-  } else {
-    showFinal();
+function onCheck(){
+  try {
+    const data = quizData[current];
+    const sel = (selections[current] || []).slice().sort((a,b)=>a-b);
+    if(sel.length===0){ alert('Selecione uma ou mais opções antes de verificar.'); return; }
+    const correct = (data.answer || []).slice().sort((a,b)=>a-b);
+    const isCorrect = JSON.stringify(sel) === JSON.stringify(correct);
+    const optsEls = document.querySelectorAll('#opts-'+current+' .option');
+    optsEls.forEach((el, idx)=>{
+      el.classList.remove('correct','wrong');
+      if(correct.includes(idx)) el.classList.add('correct');
+      if(sel.includes(idx) && !correct.includes(idx)) el.classList.add('wrong');
+    });
+    answered[current] = {selected: sel, correct: correct, ok: isCorrect};
+    if(isCorrect) score++;
+    resultBox.style.display = 'block';
+    resultBox.innerHTML = isCorrect ? '<strong>Correto!</strong>' : '<strong>Incorreto.</strong> As respostas corretas estão marcadas.';
+    btnCheck.style.display = 'none';
+    btnNext.style.display = 'inline-block';
+  } catch(err) {
+    console.error('onCheck error', err);
+    showFatalError('Erro ao verificar resposta. Veja o console (F12).');
   }
-});
+}
 
-btnPrev.addEventListener('click', ()=>{
-  if(current > 0){
-    current--;
-    renderQuestion(current);
+function onNext(){
+  try {
+    if(current < quizData.length - 1){
+      current++;
+      renderQuestion(current);
+    } else {
+      showFinal();
+    }
+  } catch(err) {
+    console.error('onNext error', err);
   }
-});
+}
+
+function onPrev(){
+  try {
+    if(current > 0){
+      current--;
+      renderQuestion(current);
+    }
+  } catch(err) {
+    console.error('onPrev error', err);
+  }
+}
 
 function showFinal(){
   let wrongs = Object.keys(answered).filter(k=>!answered[k].ok).map(k=>parseInt(k));
@@ -229,7 +281,7 @@ function showFinal(){
   }
   qArea.innerHTML = html;
   progress.innerText = 'Concluído';
-  document.querySelector('.controls').style.display = 'none';
+  try { document.querySelector('.controls').style.display = 'none'; } catch(e){}
   resultBox.style.display = 'none';
   window.scrollTo({top:0,behavior:'smooth'});
 }
@@ -240,8 +292,6 @@ function formatOptions(options, indices){
 }
 
 function escapeHtml(s){ return String(s).replace(/[&<>"']/g, function(m){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]; }); }
-
-renderQuestion(0);
 </script>
 </body>
 </html>
