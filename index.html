@@ -1,66 +1,52 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Simulado DP-600 — Léo Vianna</title>
 <style>
-:root{
-  --bg:#f3f6f9; --card:#ffffff; --primary:#0078d4; --accent:#28a745; --muted:#6b7280;
-  --radius:12px; --shadow:0 6px 20px rgba(16,24,40,0.06);
-  font-family: Inter, 'Segoe UI', system-ui, -apple-system, 'Helvetica Neue', Arial;
-}
-*{box-sizing:border-box}
-html,body{height:100%;margin:0;background:var(--bg);color:#0f172a}
-.wrap{max-width:980px;margin:28px auto;padding:20px}
-header{display:flex;align-items:center;gap:16px;margin-bottom:18px}
-header h1{font-size:1.25rem;margin:0;color:var(--primary)}
-.card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px}
-.progress{font-size:0.95rem;color:var(--muted);margin-bottom:12px}
-.question-text{font-size:1.05rem;margin-bottom:12px;line-height:1.45}
-.options{list-style:none;padding:0;margin:0}
-.option{background:#fafafa;border:1px solid #e6eef8;padding:12px;border-radius:10px;margin-bottom:10px;cursor:pointer;transition:all .15s}
-.option:hover{transform:translateY(-2px)}
-.option.selected{border-color:var(--primary);background:#eef9ff}
-.option.correct{background:#d4edda;border-color:#28a745;color:#155724}
-.option.wrong{background:#f8d7da;border-color:#dc3545;color:#721c24}
-.controls{display:flex;gap:10px;justify-content:space-between;margin-top:16px}
-button{padding:10px 16px;border-radius:8px;border:0;cursor:pointer;font-size:1rem}
-.btn-primary{background:var(--primary);color:white}
-.btn-ghost{background:transparent;border:1px solid #ddd}
-.summary{margin-top:18px;padding:12px;border-radius:8px;background:#fff7ed;border:1px solid #ffefd5;color:#663c00}
-.final-card{text-align:center;padding:20px}
-.err-list{text-align:left;margin-top:12px}
-.small{font-size:0.9rem;color:var(--muted)}
-.warn{color:#b45309;background:#fffbeb;padding:10px;border-radius:8px;margin-top:10px;border:1px solid #fcd34d}
-@media(max-width:640px){.wrap{padding:12px}}
+  body { font-family: sans-serif; max-width: 800px; margin: 20px auto; padding: 0 20px; background-color: #f4f4f9; }
+  h1 { color: #333; }
+  .controls { margin-top: 20px; padding: 10px 0; border-top: 1px solid #ccc; }
+  button { padding: 10px 20px; font-size: 16px; cursor: pointer; background-color: #0078d4; color: white; border: none; border-radius: 4px; margin-right: 10px; }
+  button:hover { background-color: #005a9e; }
+  button:disabled { background-color: #ccc; cursor: not-allowed; }
+  #question-area { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px; }
+  .option { display: block; padding: 10px; margin: 8px 0; border: 1px solid #ddd; border-radius: 4px; cursor: pointer; transition: background 0.2s; }
+  .option:hover { background-color: #f0f0f0; }
+  .option.selected { background-color: #e1f0ff; border-color: #0078d4; font-weight: bold; }
+  
+  /* Estilos para feedback de resposta */
+  .option.correct { background-color: #dff6dd; border-color: #107c10; color: #107c10; }
+  .option.wrong { background-color: #fde7e9; border-color: #a80000; color: #a80000; }
+  
+  #result-box { margin-top: 15px; padding: 15px; border-radius: 4px; font-weight: bold; display: none; }
+  #progress { font-weight: bold; color: #666; margin-bottom: 10px; }
+  #error-msg { color: red; font-weight: bold; display: none; background: #ffe6e6; padding: 10px; border: 1px solid red; }
+  
+  /* Esconder botões inicialmente */
+  #btn-prev, #btn-next, #btn-check { display: none; }
 </style>
 </head>
 <body>
-<div class="wrap card">
-  <header>
-    <div>
-      <h1>Simulado DP-600 — Léo Vianna</h1>
-      <div class="small">Use "Verificar Resposta" para mostrar a resposta correta.</div>
-    </div>
-  </header>
 
-  <div id="quiz" >
-    <div class="progress" id="progress">Questão 1 de ?</div>
-    <div id="question-area"></div>
-    <div class="controls">
-      <button id="btn-prev" class="btn-ghost">Anterior</button>
-      <div style="flex:1"></div>
-      <button id="btn-check" class="btn-primary">Verificar Resposta</button>
-      <button id="btn-next" class="btn-primary" style="display:none;margin-left:8px">Próxima</button>
-    </div>
-    <div id="result-box" class="summary" style="display:none"></div>
-    <div id="error-msg" class="warn" style="display:none"></div>
+<h1>Simulado DP-600 — Léo Vianna</h1>
+<div id="error-msg"></div>
+<div id="progress">Carregando...</div>
+
+<div id="question-area">
   </div>
+
+<div id="result-box"></div>
+
+<div class="controls">
+  <button id="btn-prev">Anterior</button>
+  <button id="btn-check">Verificar Resposta</button>
+  <button id="btn-next">Próxima</button>
 </div>
 
 <script>
-// ===== QUIZ DATA (65 questões corrigidas) =====
+// ===== 1. DADOS DO QUIZ (Corrigidos) =====
 const quizData = [
   {"q":"Você tem um tenant (locatário) do Fabric que contém um modelo de machine learning registrado em um workspace do Fabric. Você precisa usar o modelo para gerar previsões usando a função PREDICT em um notebook do Fabric. Quais duas linguagens você pode usar para realizar a pontuação (scoring) do modelo? Cada resposta correta apresenta uma solução completa. NOTA: Cada resposta correta vale um ponto.","options":["A. T-SQL","B. DAX","C. Spark SQL ","D. PySpark "],"answer":[2,3]},
   {"q":"Você tem um tenant (locatário) do Fabric que contém um warehouse. Você usa um dataflow (fluxo de dados) para carregar um novo conjunto de dados do OneLake para o warehouse. Você precisa adicionar uma etapa do Power Query para identificar os valores máximos das colunas numéricas. Qual função você deve incluir na etapa?","options":["A. Table.MaxN","B. Table.Max","C. Table.Range","D. Table.Profile "],"answer":[3]},
@@ -127,33 +113,31 @@ const quizData = [
   {"q":"Cenário: Sua rede contém um domínio on-premises do Active Directory Domain Services (AD DS) chamado contoso.com que sincroniza com um tenant (locatário) do Microsoft Entra usando o Microsoft Entra Connect. Você tem um tenant do Fabric que contém um modelo semântico.  Você habilita a segurança em nível de linha (RLS) dinâmica para o modelo e o implanta no serviço do Fabric.  Você consulta uma medida que inclui a função USERNAME(), e a consulta retorna um resultado em branco. Você precisa garantir que a medida retorne o nome principal do usuário (UPN) de um usuário. Solução: Você atualiza a medida para usar a função USEROBJECTID(). Isso atende ao objetivo?","options":["A. Sim","B. Não "],"answer":[1]},
   {"q":"Cenário: Sua rede contém um domínio on-premises do Active Directory Domain Services (AD DS) chamado contoso.com que sincroniza com um tenant (locatário) do Microsoft Entra usando o Microsoft Entra Connect. Você tem um tenant do Fabric que contém um modelo semântico.  Você habilita a segurança em nível de linha (RLS) dinâmica para o modelo e o implanta no serviço do Fabric.  Você consulta uma medida que inclui a função USERNAME(), e a consulta retorna um resultado em branco. Você precisa garantir que a medida retorne o nome principal do usuário (UPN) de um usuário. Solução: Você atualiza a medida para usar a função USERPRINCIPALNAME(). Isso atende ao objetivo?","options":["A. Sim ","B. Não"],"answer":[0]}
 ];
-// ===== end data =====
-</script>
-  
+
+// ===== 2. LÓGICA DO SIMULADO (Corrigida) =====
+
 document.addEventListener('DOMContentLoaded', () => {
-  try {
-    if(!Array.isArray(quizData) || quizData.length === 0) {
-      showFatalError('Dados do quiz (quizData) não encontrados ou estão vazios. Verifique se o array de questões está presente no arquivo.');
-      console.error('quizData inválido:', quizData);
-      return;
+    try {
+        if(!Array.isArray(quizData) || quizData.length === 0) {
+            showFatalError('Dados do quiz não encontrados. Verifique o código.');
+            return;
+        }
+        initQuiz();
+    } catch(err) {
+        showFatalError('Erro ao inicializar: ' + err.message);
     }
-    initQuiz();
-  } catch(err) {
-    showFatalError('Erro ao inicializar o simulado. Abra o Console do navegador (F12) e veja o erro.');
-    console.error('Erro init:', err);
-  }
 });
 
 function showFatalError(msg) {
-  const em = document.getElementById('error-msg');
-  em.style.display = 'block';
-  em.innerText = msg;
+    const em = document.getElementById('error-msg');
+    em.style.display = 'block';
+    em.innerText = msg;
 }
 
 let current = 0;
 let selections = {};
 let score = 0;
-let answered = {};
+let answered = {}; // para rastrear correções
 
 const qArea = document.getElementById('question-area');
 const progress = document.getElementById('progress');
@@ -163,135 +147,189 @@ const btnCheck = document.getElementById('btn-check');
 const resultBox = document.getElementById('result-box');
 
 function initQuiz() {
-  // attach events
-  btnCheck.addEventListener('click', onCheck);
-  btnNext.addEventListener('click', onNext);
-  btnPrev.addEventListener('click', onPrev);
-  // render first
-  renderQuestion(0);
+    btnCheck.addEventListener('click', onCheck);
+    btnNext.addEventListener('click', onNext);
+    btnPrev.addEventListener('click', onPrev);
+    renderQuestion(0);
 }
 
 function renderQuestion(i){
-  const data = quizData[i];
-  if(!data) {
-    qArea.innerHTML = '<div class="warn">Questão não encontrada.</div>';
-    return;
-  }
-  qArea.innerHTML = `
-    <div class="question-text"><strong>${i+1}.</strong> ${escapeHtml(data.q)}</div>
-    <ul class="options" id="opts-${i}">
-      ${data.options.map((o, idx)=>`<li class="option" data-idx="${idx}" onclick="toggleOption(${i},${idx},this)">${escapeHtml(o)}</li>`).join('')}
-    </ul>
-  `;
-  const sel = selections[i] || [];
-  sel.forEach(idx=>{
-    const el = document.querySelector('#opts-'+i+' .option[data-idx="'+idx+'"]');
-    if(el) el.classList.add('selected');
-  });
-  progress.innerText = `Questão ${i+1} de ${quizData.length}`;
-  btnPrev.style.display = i===0 ? 'none' : 'inline-block';
-  btnNext.style.display = 'none';
-  btnCheck.style.display = 'inline-block';
-  resultBox.style.display = 'none';
+    const data = quizData[i];
+    if(!data) return;
+
+    // Gera o HTML das opções
+    const optionsHtml = data.options.map((o, idx) => `
+        <div class="option" data-idx="${idx}" onclick="toggleOption(${i}, ${idx}, this)">
+            ${escapeHtml(o)}
+        </div>
+    `).join('');
+
+    qArea.innerHTML = `
+        <h3>Questão ${i+1}</h3>
+        <p>${escapeHtml(data.q)}</p>
+        <div id="opts-${i}">
+            ${optionsHtml}
+        </div>
+    `;
+
+    // Re-aplica seleções anteriores se houver
+    const sel = selections[i] || [];
+    sel.forEach(idx => {
+        const el = document.querySelector(`#opts-${i} .option[data-idx="${idx}"]`);
+        if(el) el.classList.add('selected');
+    });
+
+    // Atualiza progresso e botões
+    progress.innerText = `Questão ${i+1} de ${quizData.length}`;
+    btnPrev.style.display = i === 0 ? 'none' : 'inline-block';
+    
+    // Se já respondeu e verificou essa questão, mostra o resultado estático
+    if (answered[i]) {
+         btnNext.style.display = 'inline-block';
+         btnCheck.style.display = 'none';
+         showFeedback(i); // Re-aplica cores
+    } else {
+         btnNext.style.display = 'none';
+         btnCheck.style.display = 'inline-block';
+         resultBox.style.display = 'none';
+    }
 }
 
-function toggleOption(qIdx, oIdx, el){
-  try {
+// Função global para o onclick
+window.toggleOption = function(qIdx, oIdx, el){
+    // Se já foi respondida/verificada, bloqueia alteração
+    if(answered[qIdx]) return;
+
     el.classList.toggle('selected');
     selections[qIdx] = selections[qIdx] || [];
+    
     if (selections[qIdx].includes(oIdx)){
-      selections[qIdx] = selections[qIdx].filter(x=>x!==oIdx);
+        selections[qIdx] = selections[qIdx].filter(x => x !== oIdx);
     } else {
-      selections[qIdx].push(oIdx);
+        selections[qIdx].push(oIdx);
     }
-  } catch(err) {
-    console.error('toggleOption error', err);
-  }
 }
-window.toggleOption = toggleOption;
 
 function onCheck(){
-  try {
     const data = quizData[current];
     const sel = (selections[current] || []).slice().sort((a,b)=>a-b);
-    if(sel.length===0){ alert('Selecione uma ou mais opções antes de verificar.'); return; }
+    
+    if(sel.length === 0){
+        alert('Selecione ao menos uma opção.');
+        return;
+    }
+
     const correct = (data.answer || []).slice().sort((a,b)=>a-b);
     const isCorrect = JSON.stringify(sel) === JSON.stringify(correct);
-    const optsEls = document.querySelectorAll('#opts-'+current+' .option');
-    optsEls.forEach((el, idx)=>{
-      el.classList.remove('correct','wrong');
-      if(correct.includes(idx)) el.classList.add('correct');
-      if(sel.includes(idx) && !correct.includes(idx)) el.classList.add('wrong');
-    });
-    answered[current] = {selected: sel, correct: correct, ok: isCorrect};
+
+    // Salva o estado da resposta
+    answered[current] = {
+        selected: sel,
+        correct: correct,
+        ok: isCorrect
+    };
+
     if(isCorrect) score++;
+
+    showFeedback(current);
+
     resultBox.style.display = 'block';
-    resultBox.innerHTML = isCorrect ? '<strong>Correto!</strong>' : '<strong>Incorreto.</strong> As respostas corretas estão marcadas.';
+    resultBox.innerHTML = isCorrect ? 
+        '<span style="color:green">Correto!</span>' : 
+        '<span style="color:red">Incorreto. Veja as respostas corretas acima.</span>';
+    
     btnCheck.style.display = 'none';
     btnNext.style.display = 'inline-block';
-  } catch(err) {
-    console.error('onCheck error', err);
-    showFatalError('Erro ao verificar resposta. Veja o console (F12).');
-  }
+}
+
+function showFeedback(qIdx) {
+    const state = answered[qIdx];
+    if(!state) return;
+
+    const optsEls = document.querySelectorAll(`#opts-${qIdx} .option`);
+    optsEls.forEach((el, idx) => {
+        el.classList.remove('correct', 'wrong', 'selected');
+        
+        // Marca visualmente as corretas
+        if(state.correct.includes(idx)) {
+            el.classList.add('correct');
+        }
+        // Marca as erradas que o usuário selecionou
+        if(state.selected.includes(idx) && !state.correct.includes(idx)) {
+            el.classList.add('wrong');
+        }
+    });
 }
 
 function onNext(){
-  try {
     if(current < quizData.length - 1){
-      current++;
-      renderQuestion(current);
+        current++;
+        renderQuestion(current);
     } else {
-      showFinal();
+        showFinal();
     }
-  } catch(err) {
-    console.error('onNext error', err);
-  }
 }
 
 function onPrev(){
-  try {
     if(current > 0){
-      current--;
-      renderQuestion(current);
+        current--;
+        renderQuestion(current);
     }
-  } catch(err) {
-    console.error('onPrev error', err);
-  }
 }
 
 function showFinal(){
-  let wrongs = Object.keys(answered).filter(k=>!answered[k].ok).map(k=>parseInt(k));
-  for(let i=0;i<quizData.length;i++){
-    if(!(i in answered)) wrongs.push(i);
-  }
-  wrongs = Array.from(new Set(wrongs)).sort((a,b)=>a-b);
-  const total = quizData.length;
-  const correctCount = score;
-  let html = `<div class="final-card"><h2>Simulado Finalizado</h2><p>Você acertou <strong>${correctCount}</strong> de <strong>${total}</strong>.</p></div>`;
-  if(wrongs.length>0){
-    html += `<div class="err-list"><h3>Questões com erro ou não respondidas (${wrongs.length})</h3>`;
-    wrongs.forEach(idx=>{
-      const d = quizData[idx];
-      const a = answered[idx] || {selected:[], correct:d.answer||[]};
-      html += `<div style="margin-bottom:12px;padding:10px;border-radius:8px;background:#fff;border:1px solid #eee"><strong>Questão ${idx+1}</strong><div style="margin-top:6px">${escapeHtml(d.q)}</div><div style="margin-top:8px"><em>Sua resposta:</em> ${formatOptions(d.options,a.selected)}</div><div style="margin-top:4px"><em>Resposta correta:</em> ${formatOptions(d.options,a.correct)}</div></div>`;
-    });
-    html += `</div>`;
-  } else {
-    html += `<p>Parabéns! Todas as questões foram respondidas corretamente.</p>`;
-  }
-  qArea.innerHTML = html;
-  progress.innerText = 'Concluído';
-  try { document.querySelector('.controls').style.display = 'none'; } catch(e){}
-  resultBox.style.display = 'none';
-  window.scrollTo({top:0,behavior:'smooth'});
+    // CORREÇÃO DO LOOP AQUI
+    let wrongs = [];
+    for(let i = 0; i < quizData.length; i++){
+        // Se não respondeu ou errou
+        if(!answered[i] || !answered[i].ok) {
+            wrongs.push(i);
+        }
+    }
+    
+    const total = quizData.length;
+    let html = `<h2>Simulado Finalizado</h2>
+                <p>Você acertou <strong>${score}</strong> de <strong>${total}</strong>.</p>`;
+    
+    if(wrongs.length > 0){
+        html += `<h3>Questões com erro ou não respondidas:</h3>`;
+        wrongs.forEach(idx => {
+            const d = quizData[idx];
+            const a = answered[idx] || {selected:[], correct:d.answer||[]};
+            
+            html += `<div style="margin-bottom:20px; border-bottom:1px solid #ccc; padding-bottom:10px;">
+                <strong>Questão ${idx+1}:</strong> ${escapeHtml(d.q)}<br/>
+                <span style="color:red">Sua resposta: ${formatOptions(d.options, a.selected)}</span><br/>
+                <span style="color:green">Resposta correta: ${formatOptions(d.options, a.correct)}</span>
+            </div>`;
+        });
+    } else {
+        html += `<h3 style="color:green">Parabéns! Gabaritou o simulado!</h3>`;
+    }
+
+    qArea.innerHTML = html;
+    progress.innerText = 'Concluído';
+    document.querySelector('.controls').style.display = 'none';
+    resultBox.style.display = 'none';
+    window.scrollTo({top:0, behavior:'smooth'});
 }
 
 function formatOptions(options, indices){
-  if(!indices || indices.length===0) return '<span class="small">(Nenhuma)</span>';
-  return indices.map(i=>`<strong>${options[i]}</strong>`).join(', ');
+    if(!indices || indices.length === 0) return '(Nenhuma)';
+    return indices.map(i => options[i]).join(', ');
 }
 
-function escapeHtml(s){ return String(s).replace(/[&<>"']/g, function(m){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]; }); }
+// CORREÇÃO DA FUNÇÃO ESCAPE
+function escapeHtml(text) {
+  if (!text) return text;
+  return text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
 </script>
 </body>
 </html>
